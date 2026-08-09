@@ -11,8 +11,11 @@ const SHELL = [
 ];
 
 self.addEventListener("install", e => {
+  // one missing file must not stop the whole service worker installing
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())
+    caches.open(CACHE)
+      .then(c => Promise.all(SHELL.map(u => c.add(u).catch(() => {}))))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -35,9 +38,13 @@ self.addEventListener("fetch", e => {
     e.respondWith(
       fetch(req)
         .then(res => {
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put("./index.html", copy));
-          return res;
+          // never let a 404, a maintenance page or a captive portal become the app
+          if (res && res.ok && res.type !== "opaque") {
+            const copy = res.clone();
+            caches.open(CACHE).then(c => c.put("./index.html", copy));
+            return res;
+          }
+          return caches.match("./index.html").then(r => r || res);
         })
         .catch(() => caches.match("./index.html").then(r => r || caches.match(req)))
     );
@@ -47,9 +54,11 @@ self.addEventListener("fetch", e => {
   // everything else — cache first
   e.respondWith(
     caches.match(req).then(hit => hit || fetch(req).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(req, copy));
+      if (res && res.ok && res.type !== "opaque") {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(req, copy));
+      }
       return res;
-    }).catch(() => hit))
+    }).catch(() => new Response("", { status: 504, statusText: "Offline" })))
   );
 });

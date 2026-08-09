@@ -133,6 +133,10 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .mlabel{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
 
+@supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){
+  :root{--glass:rgba(255,255,255,.96);--glass-2:rgba(255,255,255,.92)}
+  html[data-theme="night"]{--glass:rgba(16,21,28,.97);--glass-2:rgba(16,21,28,.94)}
+}
 .glass{
   background:var(--glass);
   -webkit-backdrop-filter:blur(22px) saturate(1.7);
@@ -302,8 +306,9 @@ html[data-theme="night"] .mc.s-site,html[data-theme="night"] .mc.s-home,
 html[data-theme="night"] .mc.s-flyin,html[data-theme="night"] .mc.s-flyout{color:rgba(0,0,0,.78)}
 .mc.pred.s-site{background:repeating-linear-gradient(135deg,var(--pred-a) 0 4px,var(--pred-b) 4px 8px);color:var(--ink)}
 .mc.pred.s-home{background:repeating-linear-gradient(135deg,var(--predh-a) 0 4px,var(--predh-b) 4px 8px);color:var(--ink)}
-.mc.pred.s-flyin{background:repeating-linear-gradient(135deg,var(--flyin) 0 4px,var(--pred-b) 4px 8px)}
-.mc.pred.s-flyout{background:repeating-linear-gradient(135deg,var(--flyout) 0 4px,var(--pred-b) 4px 8px)}
+.mc.pred.s-flyin{background:repeating-linear-gradient(135deg,var(--flyin) 0 4px,var(--pred-b) 4px 8px);color:var(--ink)}
+.mc.pred.s-flyout{background:repeating-linear-gradient(135deg,var(--flyout) 0 4px,var(--pred-b) 4px 8px);color:var(--ink)}
+html[data-theme="night"] .mc.pred.s-flyin,html[data-theme="night"] .mc.pred.s-flyout{color:var(--ink)}
 .mc.m-leave{background:var(--leave)} .mc.m-rdo{background:var(--rdo)}
 .mc.m-training{background:var(--training)} .mc.m-sick{background:var(--sick)}
 .mc.m-leave,.mc.m-rdo,.mc.m-training,.mc.m-sick{color:#fff;font-weight:700}
@@ -373,7 +378,9 @@ html[data-theme="night"] .mc.m-training,html[data-theme="night"] .mc.m-sick{colo
 .rrow{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--dim);
   padding:9px 0;border-bottom:1px solid var(--line)}
 .rrow:last-child{border-bottom:0}
-.rrow b{font-family:var(--mono);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;font-size:13.5px}
+.rrow b{font-family:var(--mono);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;
+  font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rrow>span{flex:0 0 auto;white-space:nowrap}
 .rchips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;min-height:30px}
 .railbox{min-height:104px}
 
@@ -410,6 +417,9 @@ td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowra
   font-size:14.5px;font-weight:640;box-shadow:var(--sh-2);z-index:300;opacity:0;pointer-events:none;
   transition:transform 240ms cubic-bezier(.2,.8,.3,1),opacity 240ms;max-width:90vw;text-align:center}
 #toast.show{transform:translate(-50%,0);opacity:1}
+#toast.ok{box-shadow:var(--sh-2),inset 4px 0 0 var(--home)}
+#toast.err{background:#8E2C1C;color:#fff;box-shadow:var(--sh-2),inset 4px 0 0 #FFC9BC}
+html[data-theme="night"] #toast.err{background:#F0A99C;color:#1A0B07}
 .modalbg{position:fixed;inset:0;background:rgba(24,20,16,.45);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
   z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
@@ -452,8 +462,10 @@ html[data-theme="night"] .modalbg{background:rgba(0,0,0,.65)}
     border-radius:22px 22px 0 0;padding:16px 18px calc(20px + var(--safe-b));z-index:140;
     box-shadow:var(--sh-3);transform:translateY(102%);
     transition:transform 260ms cubic-bezier(.2,.85,.3,1);max-height:84vh;overflow-y:auto}
-  .rail.open{transform:translateY(0)}
-  .sheetclose{display:flex;position:absolute;top:12px;right:14px}
+  .rail{visibility:hidden}
+  .rail.open{transform:translateY(0);visibility:visible}
+  body.sheeting{overflow:hidden}
+  .sheetclose{display:flex;position:sticky;top:0;float:right;margin:-4px -4px 0 0;z-index:2}
   .sheetgrip{display:block;width:40px;height:4px;border-radius:99px;background:var(--line-2);margin:0 auto 14px}
   .sheetscrim{position:fixed;inset:0;background:rgba(24,20,16,.35);z-index:110;opacity:0;pointer-events:none;
     transition:opacity 240ms}
@@ -622,7 +634,7 @@ html[data-theme="night"] .modalbg{background:rgba(0,0,0,.65)}
             <div><div class="t1">Drop a travel confirmation PDF here</div>
                  <div class="t2">Reads dates, times, routes and camp bookings</div></div>
             <button class="pill primary" id="pickBtn">Choose PDF file</button>
-            <input type="file" id="file" accept="application/pdf,.pdf" class="sr">
+            <input type="file" id="file" accept="application/pdf,.pdf" class="sr" tabindex="-1" aria-hidden="true">
           </div>
           <p class="hint" style="margin:14px 0 0">Nothing is uploaded anywhere. The PDF is read inside this page on your own device.</p>
         </div>
@@ -685,7 +697,7 @@ html[data-theme="night"] .modalbg{background:rgba(0,0,0,.65)}
               Export to calendar (.ics)</button>
             <button class="pill" id="saveBtn">Download backup</button>
             <button class="pill" id="loadBtn">Restore backup</button>
-            <input type="file" id="jsonFile" accept="application/json,.json" class="sr">
+            <input type="file" id="jsonFile" accept="application/json,.json" class="sr" tabindex="-1" aria-hidden="true">
           </div>
           <div class="actions" style="margin-bottom:15px">
             <label class="switch"><input type="checkbox" id="optSwings" checked><span class="tr"></span>On-site blocks</label>
@@ -853,7 +865,14 @@ const uid=()=>"x"+Math.random().toString(36).slice(2,10)+Date.now().toString(36)
 const monthKey=(y,m)=>{while(m<0){m+=12;y--}while(m>11){m-=12;y++}return{y,m}};
 
 let toastT;
-function toast(m,k){const t=$("#toast");t.textContent=m;t.className="show "+(k||"");clearTimeout(toastT);toastT=setTimeout(()=>t.className="",3400);}
+function toast(m,k){
+  /* never let a cheerful message hide the fact that nothing was written to disk */
+  if(k==="ok"&&typeof saveBroken!=="undefined"&&saveBroken){
+    m="Not saved \u2014 storage is blocked. Use Data \u2192 Download backup"; k="err";
+  }
+  const t=$("#toast");t.textContent=m;t.className="show "+(k||"");
+  clearTimeout(toastT);toastT=setTimeout(()=>t.className="",k==="err"?5200:3400);
+}
 
 /* ---------------- state ---------------- */
 const KEY="fifoRoster.v1", TKEY="fifoRoster.theme";
@@ -863,48 +882,140 @@ let rAnchorY=new Date().getFullYear(), rAnchorM=new Date().getMonth();
 let yearShown=new Date().getFullYear();
 const MONTHS_SHOWN=4;
 
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){console.warn(e)}}
-function load(){try{const r=localStorage.getItem(KEY);if(!r)return;
-  const o=JSON.parse(r);S=Object.assign({homeAirport:"PER",flights:[],camps:[],person:"",predicted:[],marks:{}},o);
-  S.flights=S.flights||[];S.camps=S.camps||[];S.predicted=S.predicted||[];S.marks=S.marks||{};}catch(e){console.warn(e)}}
+let saveBroken=false, loadProblem=null;
+function save(){
+  try{ localStorage.setItem(KEY,JSON.stringify(S)); saveBroken=false; return true; }
+  catch(e){ console.warn(e); saveBroken=true; return false; }
+}
+/* Accept only data we can actually render. Never let a bad file or a bad
+   key take the app down, and never overwrite good data with rubbish. */
+const BLANK=()=>({homeAirport:"PER",flights:[],camps:[],person:"",predicted:[],marks:{}});
+const isDate=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v);
+function cleanFlight(f){
+  if(!f||typeof f!=="object"||!isDate(f.date))return null;
+  if(f.dir!=="in"&&f.dir!=="out")return null;
+  return {id:typeof f.id==="string"?f.id:uid(),date:f.date,dir:f.dir,
+    from:String(f.from||"").slice(0,4),to:String(f.to||"").slice(0,4),
+    flightNo:String(f.flightNo||"").slice(0,10),
+    checkIn:typeof f.checkIn==="string"?f.checkIn:null,
+    dep:typeof f.dep==="string"?f.dep:null,
+    arr:typeof f.arr==="string"?f.arr:null,
+    source:typeof f.source==="string"?f.source:"manual",
+    pred:!!f.pred};
+}
+function sanitise(o){
+  if(!o||typeof o!=="object"||Array.isArray(o)) throw new Error("not a roster backup");
+  if(!Array.isArray(o.flights)) throw new Error("no flights list");
+  const S2=BLANK();
+  S2.homeAirport=(typeof o.homeAirport==="string"&&/^[A-Z]{3}$/.test(o.homeAirport))?o.homeAirport:"PER";
+  S2.person=typeof o.person==="string"?o.person.slice(0,120):"";
+  S2.flights=o.flights.map(cleanFlight).filter(Boolean);
+  S2.predicted=(Array.isArray(o.predicted)?o.predicted:[]).map(cleanFlight).filter(Boolean)
+    .map(f=>(f.pred=true,f.source="predicted",f));
+  S2.camps=(Array.isArray(o.camps)?o.camps:[]).filter(c=>c&&typeof c==="object"&&isDate(c.from)&&isDate(c.to)&&c.to>=c.from)
+    .map(c=>({id:typeof c.id==="string"?c.id:uid(),from:c.from,to:c.to,
+      name:String(c.name||"Camp").slice(0,60),room:String(c.room||"").slice(0,30)}));
+  const m=(o.marks&&typeof o.marks==="object"&&!Array.isArray(o.marks))?o.marks:{};
+  for(const d in m){
+    const v=m[d];
+    if(!isDate(d)||!v||typeof v!=="object")continue;
+    const k=MARKS[v.k]?v.k:null, sh=(v.s==="day"||v.s==="night")?v.s:null;
+    if(k||sh) S2.marks[d]={k,s:sh};
+  }
+  return S2;
+}
+function load(){
+  let raw=null;
+  try{ raw=localStorage.getItem(KEY); }catch(e){ loadProblem="blocked"; return; }
+  if(!raw) return;
+  try{ S=sanitise(JSON.parse(raw)); }
+  catch(e){ console.warn(e); loadProblem="corrupt"; }
+}
 
 /* ---------------- derived ---------------- */
+const cmpFlight=(a,b)=> a.date!==b.date ? (a.date<b.date?-1:1)
+                      : a.dir!==b.dir ? (a.dir==="in"?-1:1)
+                      : (a.id<b.id?-1:a.id>b.id?1:0);
+/* Confirmed data always wins: a prediction dated at or before the last
+   confirmed flight is stale and is ignored until it is re-projected. */
+function livePredicted(){
+  if(!S.predicted.length) return [];
+  if(!S.flights.length) return S.predicted;
+  let last=S.flights[0].date;
+  for(const f of S.flights) if(f.date>last) last=f.date;
+  return S.predicted.filter(f=>f.date>last);
+}
 function sortedFlights(inclPred){
-  const all = inclPred===false ? S.flights : S.flights.concat(S.predicted);
-  return all.slice().sort((a,b)=> a.date===b.date ? (a.dir==="in"?-1:1) : (a.date<b.date?-1:1));
+  const all = inclPred===false ? S.flights.slice() : S.flights.concat(livePredicted());
+  return all.sort(cmpFlight);
 }
 function buildSwings(){
-  const fl=sortedFlights(true),out=[];let open=null;
-  for(const f of fl){ if(f.dir==="in"){if(!open)open=f;} else if(open){out.push({inF:open,outF:f,pred:!!(open.pred||f.pred)});open=null;} }
-  if(open)out.push({inF:open,outF:null,pred:!!open.pred});
+  const fl=sortedFlights(true), out=[], orphans=[]; let open=null;
+  for(const f of fl){
+    if(f.dir==="in"){
+      /* a second fly-in with no fly-home between them: close the first one the
+         day before rather than silently dropping the new flight */
+      if(open) out.push({inF:open,outF:null,pred:!!open.pred,endBefore:f.date});
+      open=f;
+    } else {
+      if(open){ out.push({inF:open,outF:f,pred:!!(open.pred||f.pred)}); open=null; }
+      else orphans.push(f);            /* fly-home with no fly-in on record */
+    }
+  }
+  if(open) out.push({inF:open,outF:null,pred:!!open.pred});
+  out.orphans=orphans;
   return out;
 }
+/* Use the most common gap between fly-ins rather than just the last two, so a
+   single shutdown-extended swing doesn't switch projection off entirely. */
 function cycleFrom(sw){
   const done=sw.filter(s=>!s.pred&&s.outF);
   if(done.length<2)return null;
-  const last=done[done.length-1],prev=done[done.length-2];
-  const on=daysBetween(last.inF.date,last.outF.date)+1;
-  const cycle=daysBetween(prev.inF.date,last.inF.date);
-  if(cycle<=0||on<=0||cycle>90||on>cycle)return null;
-  return {on,cycle,off:cycle-on,last};
+  const recent=done.slice(-7), gaps=[];
+  for(let i=1;i<recent.length;i++){
+    const g=daysBetween(recent[i-1].inF.date,recent[i].inF.date);
+    if(g>0&&g<=90)gaps.push(g);
+  }
+  if(!gaps.length)return null;
+  const tally={}; let cycle=gaps[0],best=0;
+  for(const g of gaps){ tally[g]=(tally[g]||0)+1;
+    if(tally[g]>best||(tally[g]===best&&g>cycle)){best=tally[g];cycle=g;} }
+  const len=x=>daysBetween(x.inF.date,x.outF.date)+1;
+  let on=null;
+  for(let i=recent.length-1;i>=0;i--){ const L=len(recent[i]); if(L>0&&L<cycle){on=L;break;} }
+  if(on==null) on=Math.max(1,cycle-1);
+  return {on,cycle,off:cycle-on,last:recent[recent.length-1]};
 }
 function buildDayMap(){
   const map=new Map(),swings=buildSwings(),cyc=cycleFrom(swings);
+  /* a fly-home with no matching fly-in still gets a cell */
+  for(const f of (swings.orphans||[]))
+    map.set(f.date,{status:"travel",pred:!!f.pred,swingIx:null,dayNo:1,dayTot:null,
+      openEnded:false,orphan:true,flight:f});
   swings.forEach((sw,i)=>{
     const start=sw.inF.date, openLen=cyc?cyc.on:1;
-    const end=sw.outF?sw.outF.date:addDays(start,openLen-1);
-    const tot=daysBetween(start,end)+1;
-    for(let k=0;k<tot&&k<400;k++){
+    let end;
+    if(sw.outF) end=sw.outF.date;
+    else if(sw.endBefore) end=addDays(sw.endBefore,-1);          /* bounded by the next fly-in */
+    else end=addDays(start,openLen-1);
+    if(end<start) end=start;
+    const tot=Math.min(daysBetween(start,end)+1,400);
+    for(let k=0;k<tot;k++){
       const d=addDays(start,k), isT=(k===0)||(sw.outF&&d===end);
-      map.set(d,{status:isT?"travel":"site",pred:sw.pred||(!sw.outF&&k>0),swingIx:i,
+      /* the fly-in day is only a guess if the fly-in flight itself is */
+      const dayPred = k===0 ? !!sw.inF.pred
+                    : (sw.outF&&d===end) ? !!sw.outF.pred
+                    : (sw.pred || !sw.outF);
+      map.set(d,{status:isT?"travel":"site",pred:dayPred,swingIx:i,
         dayNo:k+1,dayTot:sw.outF?tot:(cyc?tot:null),openEnded:!sw.outF,
         flight:k===0?sw.inF:(sw.outF&&d===end?sw.outF:null)});
     }
     if(sw.outF){
       const nx=swings[i+1];
-      if(nx){const gap=daysBetween(end,nx.inF.date);
+      if(nx){const gap=Math.min(daysBetween(end,nx.inF.date),400);
         for(let k=1;k<gap;k++){const d=addDays(end,k);
-          if(!map.has(d))map.set(d,{status:"home",pred:sw.pred&&nx.pred,swingIx:null,homeNo:k,homeTot:gap-1});}}
+          if(!map.has(d))map.set(d,{status:"home",pred:!!(sw.outF.pred||nx.inF.pred),swingIx:null,
+            homeNo:k,homeTot:gap-1});}}
     }
   });
   for(const c of S.camps){let d=c.from,g=0;while(d<=c.to&&g++<400){const e=map.get(d);if(e)e.camp=c;d=addDays(d,1);}}
@@ -1048,7 +1159,7 @@ function renderNow(){
   const dot=$("#nowDot");
   if(e){
     const k=statusKey(e,t);
-    dot.style.background = k==="site"?"var(--site)":k==="home"?"var(--home)":k==="flyin"?"var(--flyin)":"var(--flyout)";
+    dot.style.background="var(--"+(k.indexOf("m-")===0?k.slice(2):k)+")";
     $("#nowL1").textContent = statusLabel(e,t) + (e.status==="home"
         ? (e.homeTot?" · day "+e.homeNo+" of "+e.homeTot:"")
         : (e.dayTot?" · day "+e.dayNo+" of "+e.dayTot:""));
@@ -1114,7 +1225,9 @@ function renderFlights(){
     [fmtShort(f.date),f.dir==="in"?"\u2193 In":"\u2191 Out",f.from+" \u2192 "+f.to,f.flightNo||"\u2014",f.checkIn||"\u2014",f.dep||"\u2014",f.arr||"\u2014"]
       .forEach(v=>tr.appendChild(el("td","n",v)));
     const ac=el("td"), del=el("button","pill sm danger","Delete"); del.type="button";
-    del.onclick=()=>{S.flights=S.flights.filter(x=>x.id!==f.id);save();render();updateCycleNote();toast("Flight removed","ok");};
+    del.onclick=()=>{
+      if(!confirm("Delete the "+fmtShort(f.date)+" flight "+f.from+" to "+f.to+"?"))return;
+      S.flights=S.flights.filter(x=>x.id!==f.id);save();render();updateCycleNote();toast("Flight removed","ok");};
     ac.appendChild(del); tr.appendChild(ac); tb.appendChild(tr);
   }
 }
@@ -1209,15 +1322,15 @@ function renderCheck(){
   chips.appendChild(el("span","chip "+k, e?statusLabel(e,ds):(mk&&mk.k?MARKS[mk.k].lbl:"")));
   if(mk&&mk.s) chips.appendChild(el("span","chip",mk.s==="night"?"Night shift":"Day shift"));
   const dw=fromISO(ds).getDay(); if(dw===0||dw===6) chips.appendChild(el("span","chip","Weekend"));
-  if(e.openEnded) chips.appendChild(el("span","chip pred","Return not booked"));
-  else if(e.pred) chips.appendChild(el("span","chip pred","Predicted \u2014 not confirmed"));
+  if(e&&e.openEnded) chips.appendChild(el("span","chip pred","Return not booked"));
+  else if(e&&e.pred) chips.appendChild(el("span","chip pred","Predicted \u2014 not confirmed"));
 
   const row=(a,b)=>{const r=el("div","rrow");r.appendChild(el("span",null,a));r.appendChild(el("b",null,b));rows.appendChild(r);};
   const sw = e&&e.swingIx!=null ? DM.swings[e.swingIx] : null;
   if(sw){
     row("Fly in",fmtTiny(sw.inF.date));
     row("Fly home",sw.outF?fmtTiny(sw.outF.date):"not booked");
-    if(e.camp) row("Camp",e.camp.name+(e.camp.room?" \u00b7 "+e.camp.room:""));
+    if(e.camp) row("Camp",(e.camp.name.length>22?e.camp.name.slice(0,21)+"\u2026":e.camp.name)+(e.camp.room?" \u00b7 "+e.camp.room:""));
   } else if(e&&e.status==="home"){
     const nx=sortedFlights(true).find(f=>f.date>ds&&f.dir==="in");
     if(nx) row("Back on site",fmtTiny(nx.date)+"  ("+daysBetween(ds,nx.date)+"d)");
@@ -1232,14 +1345,15 @@ function renderCheck(){
 function renderRange(){
   const a=$("#qFrom").value, b=$("#qTo").value;
   const bar=$("#rangeBar"), rows=$("#rangeRows"); bar.textContent=""; rows.textContent="";
+  const zero=()=>{$("#tAway").textContent="0";$("#tHome").textContent="0";$("#tFree").textContent="0";};
   if(!a||!b||b<a){
-    $("#tAway").textContent="0"; $("#tHome").textContent="0"; $("#tFree").textContent="0";
+    zero();
     $("#rangeHint").textContent = (a&&b&&b<a) ? "The end date is before the start date."
       : "Pick a range to see how much of it you're away for.";
     return;
   }
   const total=daysBetween(a,b)+1;
-  if(total>800){ $("#rangeHint").textContent="That range is too long — keep it under about two years."; return; }
+  if(total>800){ zero(); $("#rangeHint").textContent="That range is too long — keep it under about two years."; return; }
   let away=0,home=0,free=0,pred=0; const flights=[];
   for(let i=0;i<total;i++){
     const d=addDays(a,i), e=DM.map.get(d), mk=markOf(d);
@@ -1286,8 +1400,37 @@ function setView(v){
 $$("nav.tabs button").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
 
 const isPhone=()=>window.matchMedia("(max-width:1019px)").matches;
-function openSheet(){ if(!isPhone())return; $("#rail").classList.add("open"); $("#scrim").classList.add("on"); }
-function closeSheet(){ $("#rail").classList.remove("open"); $("#scrim").classList.remove("on"); }
+let sheetReturn=null;
+function openSheet(){
+  if(!isPhone())return;
+  sheetReturn=document.activeElement;
+  const r=$("#rail");
+  r.classList.add("open"); $("#scrim").classList.add("on");
+  document.body.classList.add("sheeting");
+  r.setAttribute("role","dialog"); r.setAttribute("aria-modal","true");
+  setTimeout(()=>{ const f=r.querySelector("#sheetX"); if(f)f.focus(); },60);
+}
+function closeSheet(){
+  const r=$("#rail"), wasOpen=r.classList.contains("open");
+  r.classList.remove("open"); $("#scrim").classList.remove("on");
+  document.body.classList.remove("sheeting");
+  r.removeAttribute("role"); r.removeAttribute("aria-modal");
+  if(wasOpen&&sheetReturn&&document.contains(sheetReturn)){ try{sheetReturn.focus()}catch(e){} }
+  sheetReturn=null;
+}
+/* keep Tab inside whichever overlay is open */
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Tab")return;
+  const box=$("#revModal").classList.contains("open") ? document.querySelector("#revModal .modal")
+          : ($("#rail").classList.contains("open") ? $("#rail") : null);
+  if(!box)return;
+  const f=Array.from(box.querySelectorAll("button,[href],input,select,textarea,[tabindex]:not([tabindex='-1'])"))
+    .filter(n=>n.offsetParent!==null);
+  if(!f.length)return;
+  const first=f[0], last=f[f.length-1];
+  if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+});
 $("#scrim").onclick=closeSheet; $("#sheetX").onclick=closeSheet;
 
 /* ---- mark controls ---- */
@@ -1320,7 +1463,8 @@ $("#applySwing").onclick=()=>{
   const dates=swingDates(ds);
   if(!dates){toast("This day is not inside a swing","err");return;}
   applyMark({k:m.k,s:m.s},dates);
-  toast("Applied to all "+dates.length+" days of this swing","ok");
+  const e2=DM.map.get(ds), openEnd=e2&&e2.openEnded;
+  toast("Applied to "+dates.length+" days"+(openEnd?" (up to this day \u2014 no return booked yet)":" of this swing"),"ok");
 };
 
 /* ---- bulk range marking ---- */
@@ -1382,7 +1526,7 @@ $("#qDate").addEventListener("input",renderCheck);
 $$("[data-quick]").forEach(b=>b.addEventListener("click",()=>{
   const q=b.dataset.quick;
   let d;
-  if(q==="sat"){ const t=fromISO(todayISO()); const delta=(6-t.getDay()+7)%7; d=addDays(todayISO(),delta||7); }
+  if(q==="sat"){ const t=fromISO(todayISO()); d=addDays(todayISO(),(6-t.getDay()+7)%7); }
   else d=addDays(todayISO(),parseInt(q,10));
   $("#qDate").value=d; renderCheck();
 }));
@@ -1516,13 +1660,32 @@ function showReview(res){
     r.appendChild(el("div","rr",fmtTiny(c.from)+" \u2013 "+fmtTiny(c.to)+"  \u00b7  "+c.name+(c.room?"  \u00b7  "+c.room:"")));
     list.appendChild(r);
   }
-  $("#revSummary").innerHTML="Found <strong>"+res.flights.length+" flights</strong>"+
-    (res.camps.length?" and <strong>"+res.camps.length+" camp booking"+(res.camps.length>1?"s":"")+"</strong>":"")+
-    ". <strong>"+n+"</strong> are new."+(res.period?" Period: "+res.period+".":"");
+  /* text from the PDF is untrusted \u2014 never build this with innerHTML */
+  const sum=$("#revSummary"); sum.textContent="";
+  const strong=t=>{const b=document.createElement("strong");b.textContent=t;return b;};
+  sum.appendChild(document.createTextNode("Found "));
+  sum.appendChild(strong(res.flights.length+" flights"));
+  if(res.camps.length){
+    sum.appendChild(document.createTextNode(" and "));
+    sum.appendChild(strong(res.camps.length+" camp booking"+(res.camps.length>1?"s":"")));
+  }
+  sum.appendChild(document.createTextNode(". "));
+  sum.appendChild(strong(String(n)));
+  sum.appendChild(document.createTextNode(" are new."));
+  if(res.period) sum.appendChild(document.createTextNode(" Period: "+String(res.period).slice(0,80)+"."));
   $("#revOk").disabled = n===0&&res.camps.length===0;
+  modalReturn=document.activeElement;
   $("#revModal").classList.add("open");
+  document.body.classList.add("sheeting");
+  setTimeout(()=>{ const b=$("#revOk").disabled?$("#revCancel"):$("#revOk"); if(b)b.focus(); },60);
 }
-function closeReview(){$("#revModal").classList.remove("open");pending=null;}
+let modalReturn=null;
+function closeReview(){
+  $("#revModal").classList.remove("open");pending=null;
+  document.body.classList.remove("sheeting");
+  if(modalReturn&&document.contains(modalReturn)){try{modalReturn.focus()}catch(e){}}
+  modalReturn=null;
+}
 $("#revX").onclick=closeReview; $("#revCancel").onclick=closeReview;
 $("#revModal").addEventListener("click",e=>{if(e.target===$("#revModal"))closeReview()});
 $("#revOk").onclick=()=>{
@@ -1599,7 +1762,8 @@ function fold(l){
   return out.join("\r\n");
 }
 function stamp(){const d=new Date();return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+"T"+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+"Z";}
-const addMin=(t,m)=>{const[h,mi]=t.split(":").map(Number);const x=h*60+mi+m;return pad(Math.floor(x/60)%24)+":"+pad(x%60);};
+const addMin=(t,m)=>{const[h,mi]=t.split(":").map(Number);const x=h*60+mi+m;
+  return {t:pad(Math.floor(x/60)%24)+":"+pad(x%60), next:x>=1440};};
 function buildICS(){
   const inclPred=$("#optPred").checked;
   const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//FIFO Roster//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH",
@@ -1610,9 +1774,12 @@ function buildICS(){
     for(const f of sortedFlights(true)){
       if(f.pred&&!inclPred)continue;
       const st=f.dep||"06:00";
+      let enT=f.arr, enD=f.date;
+      if(!enT){ const r=addMin(st,90); enT=r.t; if(r.next) enD=addDays(f.date,1); }
+      else if(enT<=st) enD=addDays(f.date,1);            /* landed after midnight */
       L.push("BEGIN:VEVENT","UID:fl-"+f.id+"@fiforoster","DTSTAMP:"+ts,
         "DTSTART;TZID=Australia/Perth:"+dt(f.date,st),
-        "DTEND;TZID=Australia/Perth:"+dt(f.date,f.arr||addMin(st,90)));
+        "DTEND;TZID=Australia/Perth:"+dt(enD,enT));
       L.push(fold("SUMMARY:"+icsEsc((f.dir==="in"?"Fly in ":"Fly home ")+f.from+" \u2192 "+f.to+(f.flightNo?" "+f.flightNo:"")+(f.pred?" (predicted)":""))));
       const d=[];if(f.checkIn)d.push("Check-in "+f.checkIn);if(f.dep)d.push("Departs "+f.dep);
       if(f.arr)d.push("Arrives "+f.arr);if(f.pred)d.push("Predicted from your roster cycle - not confirmed");
@@ -1667,21 +1834,29 @@ $("#icsBtn").onclick=()=>{
   dl("fifo-roster.ics",buildICS(),"text/calendar;charset=utf-8");
   toast("Calendar file downloaded","ok");
 };
-$("#saveBtn").onclick=()=>{dl("fifo-roster-backup.json",JSON.stringify(S,null,2),"application/json");toast("Backup downloaded","ok")};
+$("#saveBtn").onclick=()=>{dl("fifo-roster-backup-"+todayISO()+".json",JSON.stringify(S,null,2),"application/json");toast("Backup downloaded","ok")};
 $("#loadBtn").onclick=()=>$("#jsonFile").click();
 $("#jsonFile").onchange=async e=>{
   const f=e.target.files[0];if(!f)return;
+  const keep=S;
   try{
-    const o=JSON.parse(await f.text());
-    if(!o||!Array.isArray(o.flights))throw new Error("bad backup");
-    S=Object.assign({homeAirport:"PER",flights:[],camps:[],person:"",predicted:[],marks:{}},o);S.marks=S.marks||{};
-    save();render();updateCycleNote();toast("Backup restored","ok");
-  }catch(err){toast("Could not read that backup file","err")}
+    const clean=sanitise(JSON.parse(await f.text()));   /* validate before touching anything */
+    if(!confirm("Replace your current roster with this backup?\n\nIt has "+clean.flights.length+
+                " flights and "+Object.keys(clean.marks).length+" marked days. This cannot be undone.")){
+      e.target.value=""; return;
+    }
+    S=clean; render(); updateCycleNote(); save();
+    toast("Backup restored \u2014 "+clean.flights.length+" flights","ok");
+  }catch(err){
+    console.warn(err); S=keep;
+    try{ render(); }catch(e2){}
+    toast("That file isn't a roster backup \u2014 nothing changed","err");
+  }
   e.target.value="";
 };
 $("#wipeBtn").onclick=()=>{
-  if(!confirm("Delete every flight, camp booking and prediction? Downloaded backups are not affected."))return;
-  S={homeAirport:"PER",flights:[],camps:[],person:"",predicted:[],marks:{}};
+  if(!confirm("Delete everything \u2014 flights, camp bookings, predictions, and every leave, RDO, training, sick and night-shift mark you have set?\n\nDownloaded backups are not affected."))return;
+  S=BLANK();
   selected=null;save();render();updateCycleNote();toast("All roster data deleted","ok");
 };
 
@@ -1697,6 +1872,10 @@ $("#qFrom").value=todayISO(); $("#qTo").value=addDays(todayISO(),13);
 $("#mkFrom").value=todayISO(); $("#mkTo").value=addDays(todayISO(),6);
 setView("roster"); render(); updateCycleNote();
 if(!S.flights.length) setView("data");
+if(loadProblem==="corrupt")
+  setTimeout(()=>toast("Saved roster couldn't be read \u2014 restore a backup from Data","err"),700);
+else if(loadProblem==="blocked")
+  setTimeout(()=>toast("This browser is blocking storage \u2014 nothing will be remembered","err"),700);
 /* installable app support — only when served over http(s); harmless as a local file */
 if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){
   window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
