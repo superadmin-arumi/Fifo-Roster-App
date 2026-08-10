@@ -159,20 +159,13 @@ button{font-family:inherit;font-size:inherit;color:inherit}
   background:var(--paper);
   transition:opacity 420ms ease,visibility 420ms;
 }
+#splash{background:transparent}
 #splash::before{
-  content:"";position:absolute;inset:-10%;pointer-events:none;
-  background:
-    radial-gradient(620px 460px at 18% 12%, rgba(239,174,34,.26), transparent 62%),
-    radial-gradient(560px 440px at 84% 26%, rgba(62,154,118,.22), transparent 62%),
-    radial-gradient(600px 460px at 50% 94%, rgba(46,111,191,.16), transparent 64%);
-}
-html[data-theme="night"] #splash::before{
-  background:
-    radial-gradient(620px 460px at 18% 12%, rgba(255,174,40,.18), transparent 62%),
-    radial-gradient(560px 440px at 84% 26%, rgba(47,194,158,.16), transparent 62%),
-    radial-gradient(600px 460px at 50% 94%, rgba(79,216,232,.13), transparent 64%);
+  content:"";position:absolute;inset:0;pointer-events:none;background:var(--paper);
 }
 #splash.gone{opacity:0;visibility:hidden;pointer-events:none}
+header,.shell{transition:opacity 420ms ease,transform 520ms cubic-bezier(.2,.9,.3,1)}
+body.booting header,body.booting .shell{opacity:0;transform:scale(.985)}
 .spwrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;
   width:100%;max-width:420px;min-height:0;max-height:100%}
 
@@ -221,7 +214,9 @@ html[data-theme="night"] .spbtn .go{color:#06251C}
 .spbtn:focus-visible{outline:3px solid var(--focus);outline-offset:6px}
 .spbtn:active.ready .disc{transform:scale(.94)}
 
-.spname{margin-top:26px;font-size:21px;font-weight:750;letter-spacing:-.02em}
+.spmark{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;flex:none;
+  background:var(--ink);color:var(--on-ink);margin-bottom:26px;box-shadow:var(--sh-2)}
+.spname{margin-top:24px;font-size:21px;font-weight:750;letter-spacing:-.02em}
 .spver{margin-top:5px;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
   font-variant-numeric:tabular-nums}
 .sptap{margin-top:14px;min-height:22px;font-size:13.5px;font-weight:650;color:var(--dim);opacity:0;
@@ -229,8 +224,8 @@ html[data-theme="night"] .spbtn .go{color:#06251C}
 .spbtn.ready ~ .sptap{opacity:1}
 
 .sphist{
-  margin-top:24px;width:100%;flex:0 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  border-top:1px solid var(--line);padding:16px 0 4px;
+  margin-top:22px;width:100%;flex:0 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:16px 18px 6px;
   -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 26px),transparent 100%);
   mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 26px),transparent 100%);
 }
@@ -285,7 +280,7 @@ html[data-theme="night"] .pill.danger{color:#F09B8C}
 .segment .pill{min-height:36px;padding:0 15px;border-color:transparent;background:transparent;box-shadow:none;font-size:14px;backdrop-filter:none}
 .segment .pill.on{background:var(--ink);border-color:var(--ink);color:var(--on-ink);box-shadow:var(--sh-1)}
 
-input[type=date],input[type=text],select{
+input[type=date],input[type=text],input[type=number],select{
   min-height:var(--tap);padding:0 15px;background:var(--card);color:var(--ink);
   border:1.5px solid var(--line-2);border-radius:var(--r-pill);
   font-family:var(--font);font-size:16px;font-variant-numeric:tabular-nums;
@@ -440,6 +435,13 @@ html[data-theme="night"] .mc.m-training,html[data-theme="night"] .mc.m-sick{colo
 .markgrid{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 .markgrid .pill{min-height:36px;padding:0 13px;font-size:13px;flex:0 0 auto}
 .markgrid .pill.on{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.remrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)}
+.remrow:last-child{border-bottom:0}
+.remrow .switch{flex:1 1 240px;min-width:0}
+.remrow select{flex:0 0 190px;min-width:150px}
+.remhint{flex:1 1 100%;font-size:12.5px;color:var(--faint);margin-top:-4px}
+.nowcard.soon{box-shadow:var(--sh-2),inset 4px 0 0 var(--site)}
+.nowcard.soon .dot{background:var(--site)!important}
 /* week banding */
 .mc.solo{margin:0 2px}
 .mc.run-start{margin:0 0 0 2px;border-top-right-radius:0;border-bottom-right-radius:0}
@@ -623,6 +625,11 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
 
 <div id="splash" role="dialog" aria-modal="true" aria-label="FIFO Roster startup">
   <div class="spwrap">
+    <div class="spmark" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17.8 19.2 16 11l3.5-3.5a2.1 2.1 0 0 0-3-3L13 8 4.8 6.2a.8.8 0 0 0-.7 1.4l6 3.6-2.4 3.6H4.6a.7.7 0 0 0-.5 1.2l3.1 3.1a.7.7 0 0 0 1.2-.5v-3.1l3.6-2.4 3.6 6a.8.8 0 0 0 1.4-.7Z"/>
+      </svg>
+    </div>
     <button class="spbtn" id="spBtn" type="button" aria-label="Open FIFO Roster" disabled>
       <svg class="arc" viewBox="0 0 132 132" aria-hidden="true"><circle cx="66" cy="66" r="62"/></svg>
       <span class="halo" aria-hidden="true"></span>
@@ -636,7 +643,7 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
     <div class="spname">FIFO Roster</div>
     <div class="spver" id="spVer">v0.0</div>
     <div class="sptap">Tap to open</div>
-    <div class="sphist">
+    <div class="sphist pane">
       <h2>Version history</h2>
       <div id="spHist"></div>
     </div>
@@ -665,8 +672,8 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
           <span class="ic" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg></span>Year</button>
         <button data-view="check">
           <span class="ic" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4M8.4 11.2l1.9 1.9 3.4-3.7"/></svg></span>Check</button>
-        <button data-view="data">
-          <span class="ic" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v3.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V15"/><path d="m7.5 10 4.5 4.5L16.5 10M12 14V3"/></svg></span>Data</button>
+        <button data-view="settings">
+          <span class="ic" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"/></svg></span>Settings</button>
       </nav>
       <button class="pill ico" id="themeBtn" aria-label="Switch to night mode" title="Night mode">
         <svg id="thIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
@@ -770,33 +777,72 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
     </section>
 
     <!-- DATA -->
-    <section id="v-data" hidden>
+    <section id="v-settings" hidden>
+
       <div class="panel">
-        <div class="phead"><h2>Load flights from a PDF</h2></div>
+        <div class="phead"><h2>Load a travel confirmation</h2></div>
         <div class="pbody">
           <div class="drop" id="drop">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="color:var(--faint)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-            <div><div class="t1">Drop a travel confirmation PDF here</div>
+            <div><div class="t1">Drop your PDF here</div>
                  <div class="t2">Reads dates, times, routes and camp bookings</div></div>
             <button class="pill primary" id="pickBtn">Choose PDF file</button>
             <input type="file" id="file" accept="application/pdf,.pdf" class="sr" tabindex="-1" aria-hidden="true">
           </div>
-          <p class="hint" style="margin:14px 0 0">Nothing is uploaded anywhere. The PDF is read inside this page on your own device.</p>
+          <p class="hint" style="margin:14px 0 0"><strong style="color:var(--dim)">Nothing leaves your device.</strong>
+          The PDF is read inside this page and your roster is stored only in this browser. No account, no server,
+          no connection of any kind &mdash; so keep a backup.</p>
         </div>
       </div>
 
       <div class="panel">
-        <div class="phead"><h2>Add a swing by hand</h2></div>
+        <div class="phead"><h2>Build a roster from a pattern</h2></div>
+        <div class="pbody">
+          <p class="hint" style="margin:0 0 16px">No PDF? Pick your swing pattern and the app lays out the whole year.</p>
+          <div class="formrow">
+            <div class="field"><label for="patStart">First fly-in</label><input type="date" id="patStart"></div>
+            <div class="field" style="flex:0 0 116px;min-width:116px"><label for="patSite">Site</label><input type="text" id="patSite" value="TBO" maxlength="4"></div>
+          </div>
+          <div class="mlabel" style="margin:18px 0 0">Days on : days off</div>
+          <div class="markgrid" id="patDays">
+            <button class="pill" data-on="7" data-off="7">7 : 7</button>
+            <button class="pill" data-on="8" data-off="6">8 : 6</button>
+            <button class="pill" data-on="9" data-off="5">9 : 5</button>
+            <button class="pill" data-on="14" data-off="7">14 : 7</button>
+            <button class="pill" data-on="13" data-off="8">13 : 8</button>
+            <button class="pill" data-on="15" data-off="6">15 : 6</button>
+          </div>
+          <div class="mlabel" style="margin:16px 0 0">Weeks on : weeks off</div>
+          <div class="markgrid" id="patWeeks">
+            <button class="pill" data-on="14" data-off="7">2 : 1</button>
+            <button class="pill" data-on="21" data-off="7">3 : 1</button>
+            <button class="pill" data-on="28" data-off="14">4 : 2</button>
+            <button class="pill" data-on="28" data-off="7">4 : 1</button>
+          </div>
+          <div class="formrow" style="margin-top:18px">
+            <div class="field"><label for="patOn">Days away</label><input type="number" id="patOn" min="1" max="60" value="8"></div>
+            <div class="field"><label for="patOff">Days home</label><input type="number" id="patOff" min="1" max="60" value="6"></div>
+            <div class="field"><label for="patN">How many swings</label><input type="number" id="patN" min="1" max="60" value="12"></div>
+          </div>
+          <div class="pane" id="patPreview" style="padding:14px 16px;margin-top:16px;min-height:96px"></div>
+          <div class="actions" style="margin-top:14px">
+            <button class="pill primary" id="patAdd">Add these swings</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="phead"><h2>Add one swing by hand</h2></div>
         <div class="pbody">
           <div class="formrow">
             <div class="field"><label for="inDate">Fly in</label><input type="date" id="inDate"></div>
             <div class="field"><label for="outDate">Fly out</label><input type="date" id="outDate"></div>
-            <div class="field" style="flex:0 0 118px;min-width:118px"><label for="siteCode">Site</label><input type="text" id="siteCode" value="TBO"></div>
+            <div class="field" style="flex:0 0 116px;min-width:116px"><label for="siteCode">Site</label><input type="text" id="siteCode" value="TBO" maxlength="4"></div>
           </div>
-          <div class="actions" style="margin-top:14px"><button class="pill primary" id="addSwing">Add swing</button></div>
+          <div class="actions" style="margin-top:14px"><button class="pill" id="addSwing">Add swing</button></div>
           <div class="divider"></div>
-          <h3 style="font-size:15px;margin-bottom:7px">Fill the rest of the year</h3>
-          <p class="hint" style="margin:0 0 14px">Repeats your most recent cycle forward. Predicted days appear striped.</p>
+          <h3 style="font-size:15px;margin-bottom:7px">Carry your cycle forward</h3>
+          <p class="hint" style="margin:0 0 14px">Repeats your most recent cycle. Predicted days appear striped.</p>
           <div class="formrow">
             <div class="field"><label for="projTo">Predict up to</label><input type="date" id="projTo"></div>
           </div>
@@ -811,7 +857,7 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
       <div class="panel">
         <div class="phead"><h2>Mark a stretch of days</h2></div>
         <div class="pbody">
-          <p class="hint" style="margin:0 0 14px">For a whole nightshift swing, a block of annual leave, or a training week — set it in one go instead of tapping each day.</p>
+          <p class="hint" style="margin:0 0 14px">A whole nightshift swing, a block of leave, a training week &mdash; set it in one go.</p>
           <div class="formrow">
             <div class="field"><label for="mkFrom">From</label><input type="date" id="mkFrom"></div>
             <div class="field"><label for="mkTo">To</label><input type="date" id="mkTo"></div>
@@ -834,7 +880,20 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
       </div>
 
       <div class="panel">
-        <div class="phead"><h2>Calendar export &amp; backup</h2></div>
+        <div class="phead"><h2>Reminders</h2></div>
+        <div class="pbody">
+          <p class="hint" style="margin:0 0 16px">These go into the calendar file, so your phone's own alerts do the reminding &mdash; they work with the app closed and with no signal.</p>
+          <div id="remList"></div>
+          <div class="divider"></div>
+          <div class="actions">
+            <label class="switch"><input type="checkbox" id="optBanner" checked><span class="tr"></span>Show a heads-up in the app</label>
+          </div>
+          <p class="hint" style="margin:12px 0 0">The app can only alert you while it's open, which is why the calendar does the real work.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="phead"><h2>Calendar file &amp; backup</h2></div>
         <div class="pbody">
           <div class="actions" style="margin-bottom:14px">
             <button class="pill primary" id="icsBtn">
@@ -847,22 +906,47 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
           <div class="actions" style="margin-bottom:15px">
             <label class="switch"><input type="checkbox" id="optSwings" checked><span class="tr"></span>On-site blocks</label>
             <label class="switch"><input type="checkbox" id="optFlights" checked><span class="tr"></span>Flights</label>
-            <label class="switch"><input type="checkbox" id="optAlarm" checked><span class="tr"></span>Remind 3h before check-in</label>
             <label class="switch"><input type="checkbox" id="optPred"><span class="tr"></span>Include predicted</label>
           </div>
-          <div class="divider"></div>
-          <h3 style="font-size:15px;margin-bottom:7px">Put it in your phone's calendar</h3>
-          <p class="hint" style="margin:0 0 12px">Subscribe once and your iPhone keeps it up to date on its own — no duplicates, no account, nothing to sign in to.</p>
-          <ol class="hint" style="margin:0;padding-left:20px;line-height:1.9">
-            <li>Press <strong>Download roster.ics</strong> above</li>
-            <li>Upload that file to your site, next to <strong>index.html</strong></li>
-            <li>On the iPhone: <strong>Settings &rarr; Apps &rarr; Calendar &rarr; Accounts &rarr; Add Account &rarr; Other &rarr; Add Subscribed Calendar</strong></li>
-            <li>Paste your site address with <strong>/roster.ics</strong> on the end</li>
-          </ol>
-          <p class="hint" style="margin:12px 0 0">After that, whenever your roster changes just download <strong>roster.ics</strong> again and re-upload it — the phone picks it up by itself. Google Calendar can subscribe to the same address under <strong>Other calendars &rarr; From URL</strong>. Times are Perth (AWST).</p>
+          <p class="hint" style="margin:0"><strong style="color:var(--dim)">Onto your iPhone:</strong>
+          open this page in Safari, press Download roster.ics, then open it from Files and tap <strong>Add All</strong>.
+          Put it in its own calendar called Roster so you can swap it out cleanly next time. Times are Perth (AWST).</p>
+          <p class="hint" style="margin:12px 0 0"><strong style="color:var(--dim)">Don't publish that file anywhere.</strong>
+          It lists every date your place is empty.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="phead"><h2>Your details</h2></div>
+        <div class="pbody">
+          <div class="formrow">
+            <div class="field" style="flex:0 0 150px;min-width:150px">
+              <label for="homeAir">Home airport</label><input type="text" id="homeAir" maxlength="3" placeholder="PER"></div>
+            <button class="pill" id="setHome">Set</button>
+          </div>
+          <p class="hint" style="margin:14px 0 0">The airport you fly out of and back to. Worked out from your first PDF &mdash; only change it if that came out wrong.</p>
           <div class="divider"></div>
           <div class="actions"><button class="pill danger" id="wipeBtn">Delete all roster data</button></div>
-          <p class="hint" style="margin:16px 0 0" id="verLine">&nbsp;</p>
+        </div>
+      </div>
+
+      <div class="panel" id="aboutPanel">
+        <div class="phead"><h2>About</h2><div class="grow"></div><span class="chip" id="verChip">v1.1</span></div>
+        <div class="pbody">
+          <p style="margin:0 0 16px;font-size:15px;line-height:1.65">I'm a FIFO worker who got tired of squinting at travel
+          confirmations to work out when I'm home. I wanted something simple but genuinely useful for managing and tracking
+          my roster &mdash; so this is it. Load your confirmation, see your year at a glance, and know straight away whether
+          you're working on any given date.</p>
+          <p class="hint" style="margin:0 0 18px">It's free, there's no account, and your roster never leaves your device.
+          Share it with anyone who'd find it handy.</p>
+          <div class="actions" style="margin-bottom:18px">
+            <button class="pill primary" id="shareBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4M12 2v14"/></svg>
+              Share this app</button>
+            <button class="pill" id="copyLinkBtn">Copy link</button>
+          </div>
+          <div class="mlabel">What's new</div>
+          <div id="aboutHist" style="margin-top:12px"></div>
         </div>
       </div>
 
@@ -885,6 +969,7 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
             <tbody id="flBody"></tbody>
           </table></div>
           <div class="empty" id="flEmpty">No flights yet.</div>
+          <p class="hint" style="margin:16px 0 0" id="verLine">&nbsp;</p>
         </div>
       </div>
     </section>
@@ -935,8 +1020,8 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
     <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg></span>Year</button>
   <button data-view="check">
     <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4M8.4 11.2l1.9 1.9 3.4-3.7"/></svg></span>Check</button>
-  <button data-view="data">
-    <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v3.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V15"/><path d="m7.5 10 4.5 4.5L16.5 10M12 14V3"/></svg></span>Data</button>
+  <button data-view="settings">
+    <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"/></svg></span>Settings</button>
 </nav>
 
 <div class="sheetscrim" id="scrim"></div>
@@ -1020,9 +1105,11 @@ const uid=()=>"x"+Math.random().toString(36).slice(2,10)+Date.now().toString(36)
 const monthKey=(y,m)=>{while(m<0){m+=12;y--}while(m>11){m-=12;y++}return{y,m}};
 
 /* ---------------- version ---------------- */
-const APP_VERSION="1.0";
+const APP_VERSION="1.2";
 const VERSIONS=[
- ["1.0","Startup screen with version history. Calendar feed your iPhone can subscribe to, so it updates itself."],
+ ["1.2","Reads far more PDF layouts. Build a roster straight from a pattern (7:7, 2:1 and the rest). Reminders you can set yourself. Settings and About, and a link you can share."],
+ ["1.1","Works for any home airport, not just Perth \u2014 worked out from your own PDF. Nothing ever leaves your device."],
+ ["1.0","Startup screen with version history. Calendar file you can add to your phone's calendar."],
  ["0.6","New travel confirmations merge instead of overwrite \u2014 changed, cancelled and new flights shown side by side to resolve."],
  ["0.5","Robustness pass: 18 defects fixed, including silent save failures and an unsafe PDF import."],
  ["0.4","Leave, RDO, training, sick and day/night shift \u2014 per day or across a whole swing."],
@@ -1043,7 +1130,7 @@ function toast(m,k){
 
 /* ---------------- state ---------------- */
 const KEY="fifoRoster.v1", TKEY="fifoRoster.theme";
-let S={homeAirport:"PER",flights:[],camps:[],person:"",predicted:[],marks:{}};
+let S=null;   /* set to BLANK() at boot, before load() */
 let view="roster", selected=null, pending=null;
 let rAnchorY=new Date().getFullYear(), rAnchorM=new Date().getMonth();
 let yearShown=new Date().getFullYear();
@@ -1056,7 +1143,18 @@ function save(){
 }
 /* Accept only data we can actually render. Never let a bad file or a bad
    key take the app down, and never overwrite good data with rubbish. */
-const BLANK=()=>({homeAirport:"PER",flights:[],camps:[],person:"",predicted:[],marks:{},projectTo:null});
+const OFFSETS=[[0,"at the time"],[30,"30 minutes"],[60,"1 hour"],[120,"2 hours"],[180,"3 hours"],
+  [360,"6 hours"],[720,"12 hours"],[1440,"1 day"],[2880,"2 days"],[10080,"1 week"]];
+const REM_DEFS=[
+  {id:"flight",     label:"Before each flight",      hint:"counts back from departure",              def:1440},
+  {id:"checkin",    label:"Before check-in",         hint:"uses the check-in time when there is one", def:180},
+  {id:"swingStart", label:"Before a swing starts",   hint:"the day you fly in",                       def:2880},
+  {id:"swingEnd",   label:"Before you fly home",     hint:"the last day of your swing",               def:1440}
+];
+const DEF_REMINDERS=()=>({flight:{on:true,mins:1440},checkin:{on:true,mins:180},
+  swingStart:{on:false,mins:2880},swingEnd:{on:false,mins:1440}});
+const BLANK=()=>({homeAirport:"PER",flights:[],camps:[],person:"",predicted:[],marks:{},
+  projectTo:null,reminders:DEF_REMINDERS(),banner:true});
 const isDate=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v);
 function cleanFlight(f){
   if(!f||typeof f!=="object"||!isDate(f.date))return null;
@@ -1083,6 +1181,17 @@ function sanitise(o){
     .map(c=>({id:typeof c.id==="string"?c.id:uid(),from:c.from,to:c.to,
       name:String(c.name||"Camp").slice(0,60),room:String(c.room||"").slice(0,30)}));
   S2.projectTo=isDate(o.projectTo)?o.projectTo:null;
+  S2.banner=o.banner!==false;
+  S2.reminders=DEF_REMINDERS();
+  if(o.reminders&&typeof o.reminders==="object"&&!Array.isArray(o.reminders)){
+    for(const d of REM_DEFS){
+      const r=o.reminders[d.id];
+      if(r&&typeof r==="object"){
+        S2.reminders[d.id]={on:!!r.on,
+          mins:OFFSETS.some(x=>x[0]===r.mins)?r.mins:d.def};
+      }
+    }
+  }
   const m=(o.marks&&typeof o.marks==="object"&&!Array.isArray(o.marks))?o.marks:{};
   for(const d in m){
     const v=m[d];
@@ -1302,7 +1411,8 @@ function monthCard(y,m,opts){
 function render(){
   DM=buildDayMap();
   renderNow(); renderRoster(); renderYear(); renderSwings(); renderFlights();
-  renderRail(); renderRailFoot(); syncMarkButtons(); renderCheck(); renderRange(); renderLegends();
+  renderRail(); renderRailFoot(); syncMarkButtons(); renderCheck(); renderRange(); renderLegends(); renderPattern();
+  $("#homeAir").value=S.homeAirport;
   $("#brandSub").textContent = S.person
     ? S.person.split(",")[0].replace(/\b\w/g,c=>c.toUpperCase())
     : (S.flights.length? S.flights.length+" flights" : "No roster");
@@ -1335,10 +1445,18 @@ function renderNow(){
     dot.style.background="var(--line-2)";
     $("#nowL1").textContent = S.flights.length? "Not rostered today" : "No roster loaded";
   }
+  const card=$("#nowCard"); card.classList.remove("soon");
   if(nf){
     const away=daysBetween(t,nf.date);
-    $("#nowL2").textContent = "Next "+(nf.dir==="in"?"fly in":"fly home")+" "+nf.from+"\u2192"+nf.to+
-      " · "+fmtTiny(nf.date)+(nf.dep?" · "+nf.dep:"");
+    if(S.banner!==false && away<=2){
+      card.classList.add("soon");
+      $("#nowL2").textContent = (nf.checkIn?"Check in "+nf.checkIn:"Departs "+(nf.dep||"\u2014"))+
+        " · "+(away===0?"today":away===1?"tomorrow":"in "+away+" days")+
+        " · "+nf.from+"\u2192"+nf.to;
+    } else {
+      $("#nowL2").textContent = "Next "+(nf.dir==="in"?"fly in":"fly home")+" "+nf.from+"\u2192"+nf.to+
+        " · "+fmtTiny(nf.date)+(nf.dep?" · "+nf.dep:"");
+    }
     cd.hidden=false; cd.textContent = away===0?"today":away===1?"tomorrow":away+"d";
   } else { $("#nowL2").textContent = S.flights.length?"No upcoming flights":"Add a travel confirmation to begin"; cd.hidden=true; }
 }
@@ -1476,7 +1594,7 @@ function renderCheck(){
   $("#ansWhen").textContent=fmtLong(ds);
   if(!e && !(mk&&mk.k)){
     $("#ansBig").textContent="Not rostered";
-    $("#ansWhy").textContent="No roster covers this date yet. Load a PDF, add a swing, or project your cycle forward.";
+    $("#ansWhy").textContent="No roster covers this date yet. Load a PDF or build one from a pattern under Settings.";
     chips.appendChild(el("span","chip","Nothing booked"));
     if(mk&&mk.s) chips.appendChild(el("span","chip",mk.s==="night"?"Night shift":"Day shift"));
     return;
@@ -1558,7 +1676,7 @@ function setView(v){
   $$("nav.tabs button").forEach(b=>{const on=b.dataset.view===v;b.classList.toggle("on",on);
     if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
   $("#v-roster").hidden=v!=="roster"; $("#v-year").hidden=v!=="year";
-  $("#v-check").hidden=v!=="check"; $("#v-data").hidden=v!=="data";
+  $("#v-check").hidden=v!=="check"; $("#v-settings").hidden=v!=="settings";
   const showRail = v==="roster"||v==="year";
   $("#shell").classList.toggle("wide",!showRail);
   $("#rail").hidden=!showRail;
@@ -1751,45 +1869,160 @@ async function pdfToLines(buf){
   }
   return lines;
 }
-const MONIX={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
-function parseDateToken(tok){
-  const m=/^(\d{1,2})-([A-Za-z]{3})-(\d{2,4})$/.exec(tok); if(!m)return null;
-  const mi=MONIX[m[2].toLowerCase()]; if(mi==null)return null;
-  let y=parseInt(m[3],10); if(y<100)y+=2000;
-  return y+"-"+pad(mi+1)+"-"+pad(parseInt(m[1],10));
+const MONIX={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11,
+  january:0,february:1,march:2,april:3,june:5,july:6,august:7,september:8,october:9,november:10,december:11,
+  sept:8};
+
+/* ==========================================================================
+   PDF READING — deliberately tolerant. Travel confirmations come in a dozen
+   shapes, so accept every date and route style we can and say clearly when
+   a file simply has no readable text in it.
+   ========================================================================== */
+const yr4=y=>{y=parseInt(y,10);return y<100?(y<70?2000+y:1900+y):y;};
+const mkDate=(y,m,d)=>{
+  if(m<0||m>11||d<1||d>31)return null;
+  const t=new Date(y,m,d);
+  if(t.getFullYear()!==y||t.getMonth()!==m||t.getDate()!==d)return null;   /* rejects 31 Feb */
+  return y+"-"+pad(m+1)+"-"+pad(d);
+};
+/* every date shape we accept, most specific first */
+const DATE_PATTERNS=[
+  /* 11-Aug-2026 · 11 Aug 2026 · 11/Aug/26 · 11.Aug.2026 */
+  {re:/\b(\d{1,2})[\s\-\/.]([A-Za-z]{3,9})[\s\-\/.,]\s*(\d{2,4})\b/g,
+   fn:m=>{const mi=MONIX[m[2].toLowerCase()];return mi==null?null:mkDate(yr4(m[3]),mi,+m[1]);}},
+  /* Aug 11, 2026 · August 11 2026 */
+  {re:/\b([A-Za-z]{3,9})\s+(\d{1,2}),?\s+(\d{4})\b/g,
+   fn:m=>{const mi=MONIX[m[1].toLowerCase()];return mi==null?null:mkDate(yr4(m[3]),mi,+m[2]);}},
+  /* 2026-08-11 */
+  {re:/\b(\d{4})-(\d{1,2})-(\d{1,2})\b/g,
+   fn:m=>mkDate(+m[1],+m[2]-1,+m[3])},
+  /* 11/08/2026 — day first, the Australian way */
+  {re:/\b(\d{1,2})\/(\d{1,2})\/(\d{2,4})\b/g,
+   fn:m=>mkDate(yr4(m[3]),+m[2]-1,+m[1])}
+];
+function findDates(line){
+  const out=[];
+  for(const p of DATE_PATTERNS){
+    p.re.lastIndex=0; let m;
+    while((m=p.re.exec(line))){
+      const d=p.fn(m);
+      if(d&&!out.some(x=>x.at<m.index+m[0].length&&x.end>m.index))
+        out.push({date:d,at:m.index,end:m.index+m[0].length,text:m[0]});
+    }
+  }
+  return out.sort((a,b)=>a.at-b.at);
 }
+function parseDateToken(tok){ const d=findDates(String(tok)); return d.length?d[0].date:null; }
+
+/* PER-TBO · PER - TBO · PER to TBO · PER / TBO · PER > TBO · Perth (PER) to Newman (NBO) */
+const ROUTE_PATTERNS=[
+  /\(\s*([A-Z]{3})\s*\)\s*(?:to|-|–|—|\/|>|→)\s*[A-Za-z .'\-]*\(\s*([A-Z]{3})\s*\)/,
+  /\b([A-Z]{3})\s*(?:-|–|—|\/|>|→)\s*([A-Z]{3})\b/,
+  /\b([A-Z]{3})\s+(?:to|TO|To)\s+([A-Z]{3})\b/
+];
+function findRoute(line){
+  for(const re of ROUTE_PATTERNS){
+    const m=re.exec(line);
+    if(m&&m[1]!==m[2]) return {from:m[1],to:m[2],index:m.index,length:m[0].length};
+  }
+  return null;
+}
+const FLNO=/\b([A-Z]{2}[A-Z0-9]?)\s?(\d{1,4}[A-Z]?)\b/;
+const NOT_FLIGHT=/^(?:PER|TBO|BNE|SYD|MEL|ADL|DRW|CNS|OOL|KTA|PHE|NBO|MOV|LEA|BME|PPI|ZNE|AUS|GMT|AWST|AEST|ACST|AEDT|PDF|VIP|ETA|ETD)$/;
+
+/* times: 14:50 · 1450 · 2:50 PM · 0450 */
+function findTimes(line){
+  const out=[];
+  const re=/\b([01]?\d|2[0-3]):([0-5]\d)\s*(am|pm|AM|PM)?\b|\b([01]\d|2[0-3])([0-5]\d)\s*(?:hrs|HRS|h)?\b/g;
+  let m;
+  while((m=re.exec(line))){
+    let h,mi;
+    if(m[1]!=null){ h=+m[1]; mi=+m[2];
+      const ap=(m[3]||"").toLowerCase();
+      if(ap==="pm"&&h<12)h+=12; if(ap==="am"&&h===12)h=0;
+    } else { h=+m[4]; mi=+m[5]; }
+    if(h>23||mi>59) continue;
+    out.push({t:pad(h)+":"+pad(mi),at:m.index});
+  }
+  return out;
+}
+
 function parsePdfLines(lines,home){
-  const flights=[],camps=[];let person="",period="";
-  const DATE=/\b\d{1,2}-[A-Za-z]{3}-\d{2,4}\b/g, TIME=/\b([01]?\d|2[0-3]):[0-5]\d\b/g;
-  const ROUTE=/\b([A-Z]{3})\s*-\s*([A-Z]{3})\b/, FLNO=/\b([A-Z]{2})\s?(\d{2,4})\b/;
+  const raw=[],camps=[]; let person="",period="",candidates=0;
+
+  /* a flight row can be split over two lines in some layouts, so look at each
+     line on its own and then at each line joined with the one after it */
+  const views=[];
+  for(let i=0;i<lines.length;i++){
+    views.push(lines[i]);
+    if(i+1<lines.length) views.push(lines[i]+" "+lines[i+1]);
+  }
+
   for(const line of lines){
-    if(!person){const pm=/^([A-Z][A-Za-z'\-]+,\s*[A-Za-z .'\-]+?)\s*-\s*Travel Confirmation/.exec(line);if(pm)person=pm[1].trim();}
-    if(!period){const rm=/For the period\s+(.+)$/i.exec(line);if(rm)period=rm[1].trim();}
-    const dates=line.match(DATE)||[], route=ROUTE.exec(line);
+    if(!person){
+      const pm=/^([A-Z][A-Za-z'\-]+,\s*[A-Za-z .'\-]+?)\s*[-–]\s*Travel Confirmation/.exec(line)
+            || /^(?:Traveller|Passenger|Employee)\s*[:\-]\s*(.{2,60}?)\s*$/i.exec(line);
+      if(pm)person=pm[1].trim();
+    }
+    if(!period){const rm=/(?:For the period|Period|Valid)\s*[:\-]?\s+(.{4,60})$/i.exec(line);if(rm)period=rm[1].trim();}
+  }
+
+  const seenRow=new Set();
+  for(const line of views){
+    const dates=findDates(line);
+    const route=findRoute(line);
+
+    /* ---- flight row: exactly one date and a route ---- */
     if(route&&dates.length===1){
-      const date=parseDateToken(dates[0]); if(!date)continue;
-      const from=route[1],to=route[2], fm=FLNO.exec(line.slice(route.index+route[0].length));
-      const times=line.match(TIME)||[]; let ci=null,dep=null,arr=null;
+      candidates++;
+      const key=dates[0].date+route.from+route.to;
+      if(seenRow.has(key)) continue;
+      let fno="";
+      const after=line.slice(route.index+route.length);
+      let fm=FLNO.exec(after) || FLNO.exec(line);
+      if(fm&&!NOT_FLIGHT.test(fm[1]+fm[2])&&!NOT_FLIGHT.test(fm[1])) fno=fm[1]+fm[2];
+      const times=findTimes(line).filter(t=>t.at<dates[0].at||t.at>dates[0].end).map(t=>t.t);
+      let ci=null,dep=null,arr=null;
       if(times.length>=3){ci=times[0];dep=times[1];arr=times[2];}
       else if(times.length===2){dep=times[0];arr=times[1];}
       else if(times.length===1){dep=times[0];}
-      let dir=null; if(from===home)dir="in"; else if(to===home)dir="out"; else continue;
-      flights.push({id:uid(),date,dir,from,to,flightNo:fm?(fm[1]+fm[2]):"",checkIn:ci,dep,arr,source:"pdf"});
+      seenRow.add(key);
+      raw.push({date:dates[0].date,from:route.from,to:route.to,flightNo:fno,checkIn:ci,dep,arr});
       continue;
     }
+
+    /* ---- accommodation row: two dates, no route ---- */
     if(dates.length===2&&!route){
-      const a=parseDateToken(dates[0]),b=parseDateToken(dates[1]); if(!a||!b||b<a)continue;
-      const tail=line.slice(line.lastIndexOf(dates[1])+dates[1].length).replace(/^\s*-\s*/,"").trim();
-      if(!tail)continue;
-      const rm=/\(\s*Room\s*-\s*([A-Za-z0-9._\-\/]+)\s*\)/i.exec(tail);
-      const name=tail.replace(/\(\s*Room[^)]*\)/i,"").replace(/^-\s*/,"").trim();
-      camps.push({id:uid(),from:a,to:b,name:name||"Camp",room:rm?rm[1]:""});
+      const a=dates[0].date,b=dates[1].date;
+      if(b<a||daysBetween(a,b)>120) continue;
+      const tail=line.slice(dates[1].end).replace(/^\s*[-–]\s*/,"").trim();
+      if(!tail||tail.length<3) continue;
+      if(camps.some(c=>c.from===a&&c.to===b)) continue;
+      const rm=/\(?\s*Room\s*[-:#]?\s*([A-Za-z0-9._\-\/]+)\s*\)?/i.exec(tail);
+      const name=tail.replace(/\(?\s*Room\s*[-:#]?[^)]*\)?/i,"").replace(/^[-–]\s*/,"").trim();
+      camps.push({id:uid(),from:a,to:b,name:(name||"Camp").slice(0,60),room:rm?rm[1]:""});
     }
   }
+
+  const tally={};
+  for(const r of raw){ tally[r.from]=(tally[r.from]||0)+1; tally[r.to]=(tally[r.to]||0)+1; }
+  let auto=null,best=0;
+  for(const a in tally) if(tally[a]>best){best=tally[a];auto=a;}
+  const base = (home && tally[home]) ? home : auto;
+
+  const flights=[];
+  for(const r of raw){
+    const dir = r.from===base ? "in" : r.to===base ? "out" : null;
+    if(!dir) continue;
+    flights.push({id:uid(),date:r.date,dir,from:r.from,to:r.to,flightNo:r.flightNo,
+      checkIn:r.checkIn,dep:r.dep,arr:r.arr,source:"pdf"});
+  }
   const seen=new Set();
-  const uniq=flights.filter(f=>{const k=f.date+f.from+f.to+f.flightNo;if(seen.has(k))return false;seen.add(k);return true;});
-  uniq.sort((a,b)=>a.date<b.date?-1:1);
-  return {flights:uniq,camps,person,period};
+  const uniq=flights.filter(f=>{const k=f.date+f.from+f.to;if(seen.has(k))return false;seen.add(k);return true;});
+  uniq.sort(cmpFlight);
+  return {flights:uniq,camps,person,period,homeAirport:base||home||"PER",
+          detectedHome: !!(base&&base!==home),
+          rows:raw.length, skipped:raw.length-uniq.length, candidates};
 }
 
 const drop=$("#drop"), fileInput=$("#file");
@@ -1805,8 +2038,19 @@ async function handlePdf(file){
   if(!/\.pdf$/i.test(file.name)&&file.type!=="application/pdf"){toast("That is not a PDF file","err");return;}
   toast("Reading "+file.name+"\u2026");
   try{
-    const res=parsePdfLines(await pdfToLines(new Uint8Array(await file.arrayBuffer())),S.homeAirport);
-    if(!res.flights.length){toast("No flights found in that PDF","err");return;}
+    const lines=await pdfToLines(new Uint8Array(await file.arrayBuffer()));
+    const words=lines.join(" ").replace(/\s+/g," ").trim();
+    if(words.length<40){
+      toast("That PDF has no readable text \u2014 it looks like a scan or photo","err");
+      return;
+    }
+    const res=parsePdfLines(lines,S.homeAirport);
+    if(!res.flights.length){
+      toast(res.candidates
+        ? "Found flight rows but none using your home airport \u2014 check it under Settings"
+        : "No flights found \u2014 send me this PDF and I'll widen the reader","err");
+      return;
+    }
     pending=res; showReview(res);
   }catch(err){console.error(err);toast("Could not read that PDF \u2014 "+(err.message||"unknown error"),"err");}
 }
@@ -1837,7 +2081,8 @@ function classifyImport(res){
   const missing=mine.filter((m,i)=>!used.has(i)&&m.date>=lo&&m.date<=hi).map(f=>({mine:f}));
   const haveCamp=new Set(S.camps.map(c=>c.from+c.to+c.room));
   const camps=res.camps.filter(c=>!haveCamp.has(c.from+c.to+c.room));
-  return {identical,added,changed,missing,camps,lo,hi,person:res.person,period:res.period};
+  return {identical,added,changed,missing,camps,lo,hi,person:res.person,period:res.period,
+          homeAirport:res.homeAirport,detectedHome:res.detectedHome};
 }
 
 const flightLine=f=>(f.dir==="in"?"↓ ":"↑ ")+f.from+" → "+f.to+
@@ -1938,6 +2183,15 @@ function showReview(res){
   sum.appendChild(strong(res.flights.length+" flights"));
   sum.appendChild(document.createTextNode(". Your existing roster is not changed unless you choose to below."));
   if(res.period) sum.appendChild(document.createTextNode(" Period: "+String(res.period).slice(0,80)+"."));
+  if(res.detectedHome){
+    const n=el("div","mgbox");
+    n.appendChild(el("div","mgt","Home airport \u2014 "+res.homeAirport));
+    const line=el("div","mgv");
+    line.appendChild(el("span","vl","These flights come and go from "+res.homeAirport+
+      ", so that will be set as your home base. You can change it under Settings if that's wrong."));
+    n.appendChild(line);
+    list.insertBefore(n,list.firstChild);
+  }
 
   $("#revTitle").textContent="Add this confirmation";
   updateMergeFoot();
@@ -1990,6 +2244,7 @@ $("#revOk").onclick=()=>{
   });
   for(const cp of cls.camps) S.camps.push(cp);
   if(cls.person) S.person=cls.person;
+  if(cls.homeAirport) S.homeAirport=cls.homeAirport;
 
   const reproj = S.predicted.length>0;
   closeReview(); save();
@@ -2002,6 +2257,155 @@ $("#revOk").onclick=()=>{
   if(c.rep)said.push(c.rep+" updated");
   if(c.del)said.push(c.del+" removed");
   toast("Roster updated — "+said.join(", ")+(reproj?" · predictions refreshed":""),"ok");
+};
+
+/* ---------------- build a roster from a pattern ---------------- */
+function patSpec(){
+  const on=Math.max(1,Math.min(60,parseInt($("#patOn").value,10)||0));
+  const off=Math.max(1,Math.min(60,parseInt($("#patOff").value,10)||0));
+  const n=Math.max(1,Math.min(60,parseInt($("#patN").value,10)||0));
+  return {on,off,n,cycle:on+off,start:$("#patStart").value,site:($("#patSite").value||"SITE").toUpperCase().slice(0,4)};
+}
+function patSwings(){
+  const p=patSpec(); if(!p.start) return null;
+  const out=[];
+  for(let i=0;i<p.n;i++){
+    const a=addDays(p.start,i*p.cycle);
+    out.push({in:a,out:addDays(a,p.on-1)});
+  }
+  return {p,out};
+}
+function renderPattern(){
+  const box=$("#patPreview"); box.textContent="";
+  const r=patSwings();
+  if(!r){ box.appendChild(el("div","hint","Pick a first fly-in date to see the pattern.")); return; }
+  const {p,out}=r;
+  const line=el("div"); line.style.cssText="font-size:15px;font-weight:650;margin-bottom:6px";
+  line.textContent=p.on+" days away, "+p.off+" days home \u2014 repeating every "+p.cycle+" days";
+  box.appendChild(line);
+  const sub=el("div","hint");
+  sub.textContent=p.n+" swings, "+fmtShort(out[0].in)+" through to "+fmtShort(out[out.length-1].out)+
+    "  \u00b7  "+(p.n*p.on)+" days away in total";
+  box.appendChild(sub);
+  const list=el("div"); list.style.cssText="margin-top:10px;display:flex;flex-direction:column;gap:3px";
+  out.slice(0,3).forEach((sw,i)=>{
+    const d=el("div","hint"); d.style.fontFamily="var(--mono)";
+    d.textContent=(i+1)+".  "+fmtTiny(sw.in)+"  \u2192  "+fmtTiny(sw.out);
+    list.appendChild(d);
+  });
+  if(out.length>3){const d=el("div","hint");d.textContent="\u2026and "+(out.length-3)+" more";list.appendChild(d);}
+  box.appendChild(list);
+  /* warn if it lands on top of what's already there */
+  const clash=out.some(sw=>{ for(let d=sw.in;d<=sw.out;d=addDays(d,1)) if(DM.map.has(d)) return true; return false; });
+  if(clash){
+    const w=el("div","hint"); w.style.cssText="margin-top:10px;color:var(--site-ink);font-weight:650";
+    w.textContent="Some of these days already have a roster \u2014 adding will create overlapping swings.";
+    box.appendChild(w);
+  }
+}
+$$("#patDays button,#patWeeks button").forEach(b=>b.addEventListener("click",()=>{
+  $("#patOn").value=b.dataset.on; $("#patOff").value=b.dataset.off;
+  $$("#patDays button,#patWeeks button").forEach(x=>x.classList.toggle("on",x===b));
+  renderPattern();
+}));
+["#patStart","#patOn","#patOff","#patN","#patSite"].forEach(id=>{
+  const n=$(id); if(n) n.addEventListener("input",()=>{
+    if(id==="#patOn"||id==="#patOff") $$("#patDays button,#patWeeks button").forEach(x=>x.classList.remove("on"));
+    renderPattern();
+  });
+});
+$("#patAdd").onclick=()=>{
+  const r=patSwings();
+  if(!r){toast("Pick a first fly-in date","err");return;}
+  const {p,out}=r;
+  if(!confirm("Add "+p.n+" swings on a "+p.on+":"+p.off+" pattern, from "+fmtShort(out[0].in)+"?\n\nThis adds to your roster \u2014 nothing existing is removed."))return;
+  for(const sw of out){
+    S.flights.push({id:uid(),date:sw.in,dir:"in",from:S.homeAirport,to:p.site,flightNo:"",checkIn:null,dep:null,arr:null,source:"manual"});
+    S.flights.push({id:uid(),date:sw.out,dir:"out",from:p.site,to:S.homeAirport,flightNo:"",checkIn:null,dep:null,arr:null,source:"manual"});
+  }
+  const d=fromISO(out[0].in); rAnchorY=d.getFullYear(); rAnchorM=d.getMonth(); yearShown=d.getFullYear();
+  save(); setView("roster"); render(); updateCycleNote();
+  toast("Added "+p.n+" swings on a "+p.on+":"+p.off+" pattern","ok");
+};
+
+/* ---------------- reminders ---------------- */
+function renderReminders(){
+  const box=$("#remList"); box.textContent="";
+  for(const d of REM_DEFS){
+    const r=S.reminders[d.id]||{on:false,mins:d.def};
+    const row=el("div","remrow");
+    const lab=el("label","switch");
+    const cb=el("input"); cb.type="checkbox"; cb.checked=!!r.on;
+    cb.onchange=()=>{ S.reminders[d.id]={on:cb.checked,mins:r.mins}; save(); renderReminders(); };
+    lab.appendChild(cb); lab.appendChild(el("span","tr"));
+    lab.appendChild(document.createTextNode(d.label));
+    row.appendChild(lab);
+    const sel=document.createElement("select");
+    sel.setAttribute("aria-label",d.label+" \u2014 how far ahead");
+    OFFSETS.forEach(o=>{ const op=document.createElement("option"); op.value=o[0];
+      op.textContent=o[0]===0?"at the time":o[1]+" before"; if(o[0]===r.mins)op.selected=true; sel.appendChild(op); });
+    sel.disabled=!r.on;
+    sel.onchange=()=>{ S.reminders[d.id]={on:true,mins:parseInt(sel.value,10)}; save(); renderReminders(); };
+    row.appendChild(sel);
+    row.appendChild(el("div","remhint",d.hint));
+    box.appendChild(row);
+  }
+}
+$("#optBanner").onchange=e=>{ S.banner=e.target.checked; save(); renderNow(); };
+
+/* ---------------- about + share ---------------- */
+function renderAbout(){
+  $("#verChip").textContent="v"+APP_VERSION;
+  const h=$("#aboutHist"); h.textContent="";
+  VERSIONS.forEach((v,i)=>{
+    const row=el("div","spv"+(i===0?" now":""));
+    row.appendChild(el("span","tag",v[0]));
+    row.appendChild(el("span","txt",v[1]));
+    h.appendChild(row);
+  });
+}
+function shareUrl(){
+  const u=location.href.split("#")[0].replace(/\?.*$/,"");
+  return /^https?:/.test(u)?u:null;
+}
+$("#shareBtn").onclick=async()=>{
+  const u=shareUrl();
+  if(!u){toast("Put the app online first \u2014 there's no link to share from a file","err");return;}
+  const data={title:"FIFO Roster",text:"A simple roster tracker for FIFO work \u2014 free, and your data stays on your phone.",url:u};
+  if(navigator.share){ try{ await navigator.share(data); return; }catch(e){ if(e&&e.name==="AbortError")return; } }
+  copyText(u);
+};
+$("#copyLinkBtn").onclick=()=>{
+  const u=shareUrl();
+  if(!u){toast("Put the app online first \u2014 there's no link to share from a file","err");return;}
+  copyText(u);
+};
+function copyText(t){
+  const done=()=>toast("Link copied \u2014 send it to whoever you like","ok");
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done,fallback); }
+  else fallback();
+  function fallback(){
+    const ta=document.createElement("textarea"); ta.value=t; ta.style.cssText="position:fixed;opacity:0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); done(); }catch(e){ toast("Could not copy \u2014 "+t,"err"); }
+    ta.remove();
+  }
+}
+
+/* home airport */
+$("#setHome").onclick=()=>{
+  const v=($("#homeAir").value||"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,3);
+  if(v.length!==3){toast("Airport codes are three letters, like PER","err");return;}
+  if(v===S.homeAirport){toast("Already set to "+v,"ok");return;}
+  const old=S.homeAirport;
+  S.homeAirport=v;
+  /* re-derive which way each flight goes, so existing data stays right */
+  let flipped=0;
+  const fix=f=>{ const d = f.from===v?"in" : f.to===v?"out" : null;
+    if(d&&d!==f.dir){f.dir=d;flipped++;} };
+  S.flights.forEach(fix); S.predicted.forEach(fix);
+  save(); render(); updateCycleNote();
+  toast("Home airport set to "+v+(flipped?" \u2014 "+flipped+" flights re-checked":"")+(old?" (was "+old+")":""),"ok");
 };
 
 /* manual + projection */
@@ -2091,6 +2495,17 @@ function fold(l){
   return out.join("\r\n");
 }
 function stamp(){const d=new Date();return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+"T"+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+"Z";}
+/* ISO 8601 duration for calendar alarms */
+function dur(mins){
+  mins=Math.max(0,Math.round(mins));
+  if(!mins) return "PT0S";
+  const d=Math.floor(mins/1440), h=Math.floor((mins%1440)/60), m=mins%60;
+  let out="P"; if(d)out+=d+"D";
+  if(h||m){ out+="T"; if(h)out+=h+"H"; if(m)out+=m+"M"; }
+  return out==="P"?"PT0S":out;
+}
+const toMin=t=>{const[h,m]=t.split(":").map(Number);return h*60+m;};
+const minsBetween=(a,b)=>{let d=toMin(b)-toMin(a); if(d<0)d+=1440; return d;};
 const addMin=(t,m)=>{const[h,mi]=t.split(":").map(Number);const x=h*60+mi+m;
   return {t:pad(Math.floor(x/60)%24)+":"+pad(x%60), next:x>=1440};};
 function buildICS(){
@@ -2116,9 +2531,18 @@ function buildICS(){
       if(f.arr)d.push("Arrives "+f.arr);if(f.pred)d.push("Predicted from your roster cycle - not confirmed");
       if(d.length)L.push(fold("DESCRIPTION:"+icsEsc(d.join("\n"))));
       L.push(fold("LOCATION:"+icsEsc(f.from+" Airport")));
-      if($("#optAlarm").checked&&f.checkIn&&!f.pred)
-        L.push("BEGIN:VALARM","ACTION:DISPLAY","TRIGGER:-PT3H",
-          fold("DESCRIPTION:"+icsEsc("Check-in "+f.checkIn+" for "+f.from+" to "+f.to)),"END:VALARM");
+      if(!f.pred){
+        const R=S.reminders||{};
+        if(R.flight&&R.flight.on)
+          L.push("BEGIN:VALARM","ACTION:DISPLAY","TRIGGER:-"+dur(R.flight.mins),
+            fold("DESCRIPTION:"+icsEsc((f.dir==="in"?"Fly in ":"Fly home ")+f.from+" to "+f.to+
+              (f.dep?" at "+f.dep:"")+(f.checkIn?", check in "+f.checkIn:""))),"END:VALARM");
+        if(R.checkin&&R.checkin.on&&f.checkIn){
+          const lead=Math.max(0,minsBetween(f.checkIn,st))+R.checkin.mins;
+          L.push("BEGIN:VALARM","ACTION:DISPLAY","TRIGGER:-"+dur(lead),
+            fold("DESCRIPTION:"+icsEsc("Check in at "+f.checkIn+" for "+f.from+" to "+f.to)),"END:VALARM");
+        }
+      }
       L.push("END:VEVENT");
     }
   }
@@ -2133,7 +2557,17 @@ function buildICS(){
       L.push(fold("SUMMARY:"+icsEsc("On site \u2014 "+s.inF.to+" ("+days+" days)"+(s.pred?" (predicted)":""))));
       const d=[];if(camp)d.push(camp.name+(camp.room?", room "+camp.room:""));
       d.push("Fly in "+fmtShort(s.inF.date)+", fly home "+fmtShort(s.outF.date));
-      L.push(fold("DESCRIPTION:"+icsEsc(d.join("\n"))),"TRANSP:TRANSPARENT","END:VEVENT");
+      L.push(fold("DESCRIPTION:"+icsEsc(d.join("\n"))),"TRANSP:TRANSPARENT");
+      if(!s.pred){
+        const R=S.reminders||{};
+        if(R.swingStart&&R.swingStart.on)
+          L.push("BEGIN:VALARM","ACTION:DISPLAY","TRIGGER:-"+dur(R.swingStart.mins),
+            fold("DESCRIPTION:"+icsEsc("Swing starts "+fmtShort(s.inF.date)+" \u2014 "+days+" days away")),"END:VALARM");
+        if(R.swingEnd&&R.swingEnd.on)
+          L.push("BEGIN:VALARM","ACTION:DISPLAY","TRIGGER;RELATED=END:-"+dur(R.swingEnd.mins),
+            fold("DESCRIPTION:"+icsEsc("Fly home "+fmtShort(s.outF.date))),"END:VALARM");
+      }
+      L.push("END:VEVENT");
     });
   }
   /* marked stretches — leave, RDO, training, sick */
@@ -2208,10 +2642,13 @@ $("#wipeBtn").onclick=()=>{
   let done=false;
   function dismiss(){
     if(done)return; done=true;
+    reveal();
     box.classList.add("gone");
     setTimeout(()=>{ box.setAttribute("hidden",""); },460);
   }
-  if(skip){ box.classList.add("gone"); box.setAttribute("hidden",""); done=true; }
+  document.body.classList.add("booting");
+  const reveal=()=>document.body.classList.remove("booting");
+  if(skip){ box.classList.add("gone"); box.setAttribute("hidden",""); done=true; reveal(); }
   else{
     const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
     setTimeout(()=>{
@@ -2229,6 +2666,7 @@ $("#wipeBtn").onclick=()=>{
 })();
 
 /* boot */
+S=BLANK();
 load();
 let t0="day"; try{t0=localStorage.getItem(TKEY)||"day"}catch(e){}
 setTheme(t0==="night"?"night":"day");
@@ -2238,11 +2676,15 @@ $("#projTo").value=(now.getFullYear()+1)+"-12-31";
 $("#qDate").value=todayISO();
 $("#qFrom").value=todayISO(); $("#qTo").value=addDays(todayISO(),13);
 $("#mkFrom").value=todayISO(); $("#mkTo").value=addDays(todayISO(),6);
+$("#homeAir").value=S.homeAirport;
+$("#patStart").value=todayISO();
+$("#optBanner").checked=S.banner!==false;
 $("#verLine").textContent="FIFO Roster v"+APP_VERSION;
+renderReminders(); renderAbout();
 setView("roster"); render(); updateCycleNote();
-if(!S.flights.length) setView("data");
+if(!S.flights.length) setView("settings");
 if(loadProblem==="corrupt")
-  setTimeout(()=>toast("Saved roster couldn't be read \u2014 restore a backup from Data","err"),700);
+  setTimeout(()=>toast("Saved roster couldn't be read \u2014 restore a backup from Settings","err"),700);
 else if(loadProblem==="blocked")
   setTimeout(()=>toast("This browser is blocking storage \u2014 nothing will be remembered","err"),700);
 /* installable app support — only when served over http(s); harmless as a local file */
