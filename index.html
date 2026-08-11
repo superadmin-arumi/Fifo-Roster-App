@@ -143,8 +143,9 @@ body{
   --today-line:#B8710F;
   /* how much of what's behind shows through a month card, and how a tile is lit */
   --plate:rgba(255,255,255,.44); --surface:rgba(255,255,255,.62); --tile-lit:.20; --tile-edge:.34;
+  --chrome:rgba(247,245,242,.985);   /* header + tab bar: content must not show through */
 }
-html[data-theme="night"]{ --today-line:#FFB343; --plate:rgba(10,15,23,.34); --surface:rgba(9,13,20,.64);
+html[data-theme="night"]{ --today-line:#FFB343; --plate:rgba(10,15,23,.34); --surface:rgba(9,13,20,.64); --chrome:rgba(9,13,20,.985);
   --tile-lit:.13; --tile-edge:.20 }
 .cinema-stage{display:none}
 html[data-theme="night"] .cinema-stage{
@@ -204,9 +205,11 @@ html[data-theme="night"] main > section > .mlabel,
 html[data-theme="night"] .lkempty{
   text-shadow:0 1px 3px rgba(0,0,0,.80),0 0 12px rgba(0,0,0,.45);
 }
+/* Chrome that content scrolls underneath must hide it, not tint it. At 86%
+   the page ghosted through the header and read as overlapping text. */
 html[data-theme="night"] nav.tabs.bottom,
 html[data-theme="night"] header .glass{
-  background:var(--cinema-surface);
+  background:var(--chrome);
   border-color:var(--cinema-line);
 }
 html[data-theme="night"] .nowcard,
@@ -264,6 +267,7 @@ button{font-family:inherit;font-size:inherit;color:inherit}
   :root{--glass:rgba(255,255,255,.96);--glass-2:rgba(255,255,255,.92)}
   html[data-theme="night"]{--glass:rgba(16,21,28,.97);--glass-2:rgba(16,21,28,.94)}
 }
+header .glass,nav.tabs.bottom{background:var(--chrome)}
 .glass{
   background:var(--glass);
   -webkit-backdrop-filter:blur(22px) saturate(1.7);
@@ -521,6 +525,11 @@ html[data-theme="night"] ::-webkit-calendar-picker-indicator{filter:invert(.85)}
    HEADER
    ============================================================ */
 header{position:sticky;top:0;z-index:60;padding-top:var(--safe-t)}
+/* content dissolves under the header instead of being sliced at a hard edge */
+header::after{
+  content:"";position:absolute;left:0;right:0;top:100%;height:20px;pointer-events:none;
+  background:linear-gradient(to bottom,var(--chrome) 0,transparent 100%);
+}
 .bar{display:flex;align-items:center;gap:12px;padding:10px 18px;min-height:var(--hdr)}
 .logo{display:flex;align-items:center;gap:10px;flex:none;min-width:0}
 /* the brand mark is the app icon itself */
@@ -573,7 +582,7 @@ main{padding:6px 18px 60px;min-width:0}
    behind it — cap it to the visible gap and let it scroll inside itself */
 .rail{position:sticky;top:calc(var(--hdr-h) + var(--safe-t) + 8px);margin:0 18px 24px 0;padding:18px;
   max-height:calc(100vh - var(--hdr-h) - var(--safe-t) - 26px);overflow-y:auto;overscroll-behavior:contain;
-  border-radius:var(--r-lg);background:var(--glass);
+  border-radius:var(--r-lg);background:var(--chrome);
   -webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);
   border:1px solid var(--glass-line);box-shadow:var(--sh-2)}
 .sheetclose{display:none}
@@ -903,7 +912,7 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
   nav.tabs.bottom{
     display:flex;position:fixed;left:10px;right:10px;bottom:calc(10px + var(--safe-b));z-index:130;
     justify-content:space-between;padding:6px;border-radius:22px;
-    background:var(--glass);-webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);
+    background:var(--chrome);-webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);
     border:1px solid var(--glass-line);box-shadow:0 8px 30px rgba(40,34,28,.18)}
   html[data-theme="night"] nav.tabs.bottom{box-shadow:0 8px 30px rgba(0,0,0,.6)}
 
@@ -923,6 +932,15 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
   .sheetscrim{position:fixed;inset:0;background:rgba(24,20,16,.35);z-index:110;opacity:0;pointer-events:none;
     transition:opacity 240ms}
   .sheetscrim.on{opacity:1;pointer-events:auto}
+
+  /* the bar floats, so content used to be cut in half at its top edge and show
+     through the gaps beside it — this is the band it floats on */
+  body::after{
+    content:"";position:fixed;left:0;right:0;bottom:0;z-index:125;pointer-events:none;
+    height:calc(118px + var(--safe-b));
+    background:linear-gradient(to top,var(--chrome) 0,var(--chrome) 74%,transparent 100%);
+  }
+  body.sheeting::after,html.zoomed body::after{display:none}
 
   /* the result stays in the flow on the phone too — a sheet here would cover
      the range panel underneath it, which is exactly the bug */
@@ -957,6 +975,27 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
   .shift-feature{width:58px;height:58px;border-radius:18px}
 }
 @media (max-width:400px){ .logo .sb{display:none} }
+
+/* A phone on its side has ~390px of height. A sticky header plus a tab bar was
+   eating 44% of it, so the header scrolls away here and the bar goes slim. */
+@media (max-height:560px) and (orientation:landscape){
+  header{position:static}
+  .nowbar{display:none}
+  .bar{min-height:52px;padding:6px 14px}
+  main{padding-bottom:calc(74px + var(--safe-b))}
+  /* A floating pill on a short screen leaves content visible in the gaps beside
+     and above it, which reads as broken. Flush to the edge, full width, with a
+     hairline: a deliberate boundary rather than something sitting on the page. */
+  nav.tabs.bottom{
+    left:0;right:0;bottom:0;border-radius:0;padding:2px 6px calc(2px + var(--safe-b));
+    border:0;border-top:1px solid var(--line-2);box-shadow:0 -8px 24px rgba(0,0,0,.30)}
+  body::after{height:calc(74px + var(--safe-b));
+    background:linear-gradient(to top,var(--chrome) 0,var(--chrome) 78%,transparent 100%)}
+  nav.tabs.bottom{padding:3px;border-radius:16px;bottom:calc(6px + var(--safe-b))}
+  nav.tabs button{min-height:44px;font-size:10.5px;gap:1px;padding:4px 8px}
+  nav.tabs button .ic svg{width:17px;height:17px}
+  .rail{max-height:none}
+}
 </style>
 </head>
 <body>
@@ -1515,8 +1554,9 @@ const uid=()=>"x"+Math.random().toString(36).slice(2,10)+Date.now().toString(36)
 const monthKey=(y,m)=>{while(m<0){m+=12;y--}while(m>11){m-=12;y++}return{y,m}};
 
 /* ---------------- version ---------------- */
-const APP_VERSION="1.6";
+const APP_VERSION="1.7";
 const VERSIONS=[
+ ["1.7","No more text showing through the bars. The header and tab bar are now solid, content fades out under them instead of being cut in half, and turning the phone sideways gives the screen back to the roster."],
  ["1.6","The shift answer now sits in the page under the calendar on the phone as well, so it can never cover Check a date range. Plus a sweep for text sitting on other text across eight screen widths."],
  ["1.5","Frosted glass throughout \u2014 the calendar sits on the scene instead of hiding it, and each day is a tinted glass tile. A sun or a moon on the day itself once you set a swing to days or nights. Settings is six sections instead of one long scroll. Fixes: the result card no longer covers the range panel, the side panel no longer slides under the header, and pinch-zoom works properly."],
  ["1.4","Find a shift replaces Check: tap year, then month, then the day \u2014 no typing. Every answer in plain words with a matching medallion, and one icon set drawn at one weight throughout."],
