@@ -35,14 +35,15 @@
 
   --ink:#191C22; --dim:#575249; --faint:#6B6455;
 
-  --site:#DE7538; --home:#3E9A76; --flyin:#2E6FBF; --flyout:#7A56A8;
+  /* deep enough that white text on a tile clears 4.5:1 — measured, not eyeballed */
+  --site:#B45D2B; --home:#338264; --flyin:#2E6FBF; --flyout:#7A56A8;
   --blank:rgba(26,29,35,.055);
   --site-t:#FBEEE4; --home-t:#E9F4EF; --flyin-t:#E8EFF9; --flyout-t:#F0EAF8;
   --site-ink:#9E4715; --home-ink:#256045; --flyin-ink:#25528B; --flyout-ink:#573A82;
-  --pred-a:#EEB58A; --pred-b:rgba(26,29,35,.05);
-  --predh-a:#9CC8B4; --predh-b:rgba(26,29,35,.05);
+  --pred-a:#E0A170; --pred-b:rgba(26,29,35,.05);
+  --predh-a:#8FBCA8; --predh-b:rgba(26,29,35,.05);
 
-  --leave:#C4568A; --rdo:#6C9C8B; --training:#5860B4; --sick:#9A6656;
+  --leave:#B95182; --rdo:#567D70; --training:#5860B4; --sick:#9A6656;
   --leave-t:#FAE9F1; --rdo-t:#E9F3F0; --training-t:#EAEBF8; --sick-t:#F6ECE8;
   --leave-ink:#8E2E5D; --rdo-ink:#356354; --training-ink:#343C87; --sick-ink:#6E3F31;
 
@@ -57,6 +58,7 @@
 
   --r-pill:999px; --r-sm:10px; --r-md:14px; --r-lg:20px;
   --tap:46px;
+  --hdr-h:124px;   /* measured from the real header at runtime */
   --t:180ms cubic-bezier(.4,0,.2,1);
   --rail:300px;
   --hdr:60px;
@@ -97,6 +99,14 @@ html[data-theme="night"]{
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 
 *{box-sizing:border-box}
+/* double-tapping a control should press it, not zoom the page */
+button,.pill,.mc,input,select,label,nav.tabs button{touch-action:manipulation}
+/* pinch-zoomed, anything position:fixed is welded to the layout viewport and
+   covers what you zoomed in to read — so let the chrome scroll away instead */
+html.zoomed header{position:static}
+html.zoomed nav.tabs.bottom{display:none}
+html.zoomed .rail:not(.open){position:static}
+html.zoomed body.sheeting{overflow:auto}
 [hidden]{display:none!important}
 html,body{margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -131,8 +141,11 @@ body{
   --med-flyout:url("data:image/webp;base64,UklGRmYHAABXRUJQVlA4IFoHAACwKQCdASqwALAAPm02lkikIqIhIvXaaIANiWdu3V6FS4uoS2AbcVc9ap7pbZBnTL9AGdz+JMzG9hJ2NB8AR9B82XQ+tbaf/7BfPgHPwTJEkYEeSkQSN6Xgw0r0IPeCCUMAu6vfj7M+n4gZgoR3EG902o5F02mibZN6Xh601pk96Fq9MgbXIsybp9Ajbf7YibSrqNWJe0ZcsBZXkFKW0D4NoGLDt0i73z8O8SYShKyyoQ9w5sJ5KkRAUE3cfWbJmeOgwFwL/callN3Iot/VZIbZ8+n8tyxnDOs2naM/mWKvLiDd6XrQjPBkQU8fL/PB2ZS/J2lPnZM0XgIl5n3y9WcEF8jqnV062Gj5ula5sy48uK6pQpZsDOuD5Xs8PYusBMFKEtiTXjdb0XERi3X/9/Vavk83+XQLLvzgjEaJXCIDNf6mbtXFIBrHWNZ1J34GLULald3GFkAA/vyjIIAj1rtAcJoi0FmnxKqPW/E8faQK/7091Q+nbBHn7aDySlYnRetsuDnxStzAfSYe0d3MzDIOfj2hlxavqgibNLDXQi6wVeEtArM3rCXkZNlD6AvMRgI3E0stnc/WBVWfJqlwXNtJi7ViOg5i6l3Iv12tgmTBVhGKSkBPQL0x6s/DzknrEHQvS/96vopN9mwMQJqfdD0zJLxYI+Iv/RTbQIrbJYoRGLPgBev3Gzl+ze9uPt7wdicU1lddzPDL4jjepi7C1Cez2efC0xmS+6rh26oaTe2i35n5fC58y7he1o6qbTVa4G9j7seWWqe4GL6Wj5jMYBS6W6gXrJ2CJskfp28mECE5MtUeLoxX+iVqLQ/k1I7PoSdcax9BXJu+nOgm9NJPNWc3l/NdhXTRbcUa/DUPICorEi9kXhwgz2kg+98PiEQashgtH5hcjWF4yxlnghnvkQ4fKhjqs0wyj3Rhl8fRIGl3MB4MArkYGs84AOtidIsOckRwb8aQNEYEeD2rc/wy/HRnnt7nlhoYIJO0jdsJIeOcTxj5VhKkTrkGFWmnt9FH6PfXGqlLBetKZcXQyDzBGQ6DFEaIYMNluixVESupJMOmZTVQ3EnSKQVaVv0KUY/txlCZgaRjTTJLh2MWudkyeK6tZ1GmYifAIDH3zeli3XS6nY21NEWqGmRB1FTqTvHv6IKWb2zOEuUlpHstXge89n0JJGPyoxYj2vXqKzjzjcqOi1s0CaHdoiVzaZmjvzkw7CkMFGpPTpsmY1PuYOG41p13GTbXv+UbHx1JZOKOe98jLbQSgTYP1VnbP1uzP2r1xXBLx++qEg98FeFcEs6PTZWOfMF6jqOoRX04Ur1w3xtfSCh7zOY6WWIMb7u+gI1lJqky/iB2B1ESkPjab0szCgcCtDP6L8qLkIigj25IByFfIuyV/Utu1XxENI0f9EvfY+B+O+pI2cdxGt6wWq8NTDf+V2+OEtxN/nIUmWgjvTuvx1+TBvJ6slPCfznRMfd63klAcP0Ag9n7LcHPUmshUGn0Z1Q8hLNJNPS9MzF8WF27muMzw6eZkHTtGj1MZsKds9MAQGDB3ppWGTYrIf5su20Hil4pW3wEADi/NQsHQ3UYpj5MQKyPqAOqW6OXc0AoLKSmFBUsK3VEo2yRcqHrbY0bfmRRuk5Uabj1o6dzjwgezcIrkLRdXyeS8Pd781c6iZ3mrQmbZ+i/6EP3cntkud+ljWPGdG32QCuBD1sHdcgtXyPBHRqBK8lVkZzRgsvnGVfbfUcFEG3nItUPe6RV7OZIfw8B88+p48zbEtAXKOx0sVFod6fnupn8AlSB2v5BuN3uhDoz8hsp49d5dzppuF3pdDsb8wSmuTBR4R87S8S3hK3kBJJ2bJgg4UoyUsN6x/XvvFNys1Y/fPJjmxdNND3iCDeT8qRuHvgwpFh8gOQF830wCAnUSJLyD1l47NfFFQV68GM+fPu4Jg/vUEucnpkLv9yp8JjOrZPMjZlyJdlLO/e6OdP2M8txm9FIMDNmbYeMi09ehVVHHZPaHA9yzzrpcKy5xB7HAYpI7+PEPBFkx8uMn9Ik0VdSqwPiWIifgnUF5rPnuLZeey4aNup8LCwnHmB6TX4LB1nWRIJDpvtAKAMarIb1vADPqGiK9/eOvE0M2qzUB19ksTQWjbDKSkg+YyvOIj0pCJ7YlQGjnugoNciaBBvjU5hKvkelsSAW1VoxA5xkM0WtzYJpf1RpMNXWb8P+jxz2WcaYJNsQ5M+oyZzxesDSfW+4GZ8P17qlytgRJGi6SbygMbXY/R/xybeMHce8UbZRU9Yy0u67CpWQhwLOR2O6aioSx79fw3c5MmtChn5ePEUL0mbxFvu496kjDcTp6gfsvTPrnbXiZ942VjAt6o0fjWeyJtA6Pz6c87koCAHRFsl2hwZZqZhupm4aHL2pFeZoY1EaSrvU0yCGIg+SlbGJYC53t4CdJ373y8CAXK9qXXDz2b+DHzQ1V89u2yS30TsQq0zx3WOsjPfc3WrRmHtDLhMfNOipchgX8D4oU0AAAAAAAAAA");
   --shift-night:#D5E0EE; --shift-day:#FFBB52; --shift-flyin:#77DCEF; --shift-flyout:#B89AFF;
   --today-line:#B8710F;
+  /* how much of what's behind shows through a month card, and how a tile is lit */
+  --plate:rgba(255,255,255,.44); --surface:rgba(255,255,255,.62); --tile-lit:.20; --tile-edge:.34;
 }
-html[data-theme="night"]{ --today-line:#FFB343 }
+html[data-theme="night"]{ --today-line:#FFB343; --plate:rgba(10,15,23,.34); --surface:rgba(9,13,20,.64);
+  --tile-lit:.13; --tile-edge:.20 }
 .cinema-stage{display:none}
 html[data-theme="night"] .cinema-stage{
   display:block;position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;
@@ -145,7 +158,7 @@ html[data-theme="night"] .cinema-stage.lit{opacity:1}
   transition:opacity 420ms ease;
   animation:cinemaDrift 24s ease-in-out infinite alternate;
 }
-.cinema-stage .cs.on{opacity:.92}
+.cinema-stage .cs.on{opacity:.96}
 .cs[data-scene="site"]{background-image:var(--scene-site);background-position:64% 52%}
 .cs[data-scene="travel"]{background-image:var(--scene-travel);background-position:76% 68%}
 .cs[data-scene="recovery"]{background-image:var(--scene-recovery);background-position:72% 54%}
@@ -153,8 +166,8 @@ html[data-theme="night"] .cinema-stage.lit{opacity:1}
 .cinema-stage .scrim{
   position:absolute;inset:0;
   background:
-    linear-gradient(90deg, rgba(5,7,11,.91) 0%, rgba(5,7,11,.76) 44%, rgba(5,7,11,.42) 100%),
-    linear-gradient(0deg,  rgba(5,7,11,.86) 0%, rgba(5,7,11,.08) 58%, rgba(5,7,11,.32) 100%);
+    linear-gradient(90deg, rgba(5,7,11,.56) 0%, rgba(5,7,11,.34) 44%, rgba(5,7,11,.10) 100%),
+    linear-gradient(0deg,  rgba(5,7,11,.56) 0%, rgba(5,7,11,.02) 58%, rgba(5,7,11,.14) 100%);
 }
 .cinema-stage .bloom{
   position:absolute;inset:-3%;
@@ -171,15 +184,26 @@ html[data-theme="night"] .cinema-stage.lit .bloom{opacity:.18;animation:cinemaBl
 /* the day theme keeps its own bright colour field */
 html[data-theme="night"] body::before{display:none}
 
-/* heavier, calmer glass so roster data never sits on photography */
-html[data-theme="night"] .mm,
+/* Glass, not paint. Each surface is translucent and blurs what's behind it, so
+   the scene stays visible while the data stays readable. Only the two surfaces
+   that sit *over* everything — a modal and an open sheet — stay near-opaque. */
 html[data-theme="night"] .modal,
-html[data-theme="night"] .rail,
-html[data-theme="night"] .panel{
+html[data-theme="night"] .rail{
   background:var(--cinema-surface-strong);
   border-color:var(--cinema-line);
 }
-html[data-theme="night"] .pane,
+html[data-theme="night"] .mm{ background:var(--plate); border-color:var(--cinema-line) }
+html[data-theme="night"] .panel,
+html[data-theme="night"] .pane{
+  background:var(--surface);border-color:var(--cinema-line);
+  -webkit-backdrop-filter:blur(22px) saturate(1.4);backdrop-filter:blur(22px) saturate(1.4);
+}
+html[data-theme="night"] .vhead h2,
+html[data-theme="night"] .legend,
+html[data-theme="night"] main > section > .mlabel,
+html[data-theme="night"] .lkempty{
+  text-shadow:0 1px 3px rgba(0,0,0,.80),0 0 12px rgba(0,0,0,.45);
+}
 html[data-theme="night"] nav.tabs.bottom,
 html[data-theme="night"] header .glass{
   background:var(--cinema-surface);
@@ -545,7 +569,10 @@ nav.tabs.bottom button .ic{display:block;line-height:0}
 .shell{display:grid;grid-template-columns:minmax(0,1fr) var(--rail);align-items:start;gap:0}
 .shell.wide{grid-template-columns:minmax(0,1fr)}
 main{padding:6px 18px 60px;min-width:0}
-.rail{position:sticky;top:calc(var(--hdr) + var(--safe-t) + 8px);margin:0 18px 24px 0;padding:18px;
+/* a rail taller than the space under the header would otherwise scroll up
+   behind it — cap it to the visible gap and let it scroll inside itself */
+.rail{position:sticky;top:calc(var(--hdr-h) + var(--safe-t) + 8px);margin:0 18px 24px 0;padding:18px;
+  max-height:calc(100vh - var(--hdr-h) - var(--safe-t) - 26px);overflow-y:auto;overscroll-behavior:contain;
   border-radius:var(--r-lg);background:var(--glass);
   -webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);
   border:1px solid var(--glass-line);box-shadow:var(--sh-2)}
@@ -556,6 +583,7 @@ main{padding:6px 18px 60px;min-width:0}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;font-weight:650;color:var(--dim)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:12px;height:12px;border-radius:4px;display:block;flex:none}
+.legend .glyph svg{flex:none;stroke-width:2.6}
 .sw-site{background:var(--site)} .sw-home{background:var(--home)}
 .sw-flyin{background:var(--flyin)} .sw-flyout{background:var(--flyout)}
 .sw-pred{background:repeating-linear-gradient(135deg,var(--pred-a) 0 3px,var(--pred-b) 3px 6px)}
@@ -566,8 +594,12 @@ main{padding:6px 18px 60px;min-width:0}
 .months{display:grid;gap:14px}
 .months.roster{grid-template-columns:repeat(2,minmax(0,1fr))}
 .months.year{grid-template-columns:repeat(4,minmax(0,1fr))}
+/* One backdrop-filter per month card, never one per cell — 120 blurred layers
+   a month would cripple the phone. The card is the frosted plate; the tiles are
+   tinted glass sitting on it. */
 .mm{padding:14px 14px 12px;border-radius:var(--r-lg);
-  background:var(--glass-2);border:1px solid var(--glass-line);box-shadow:var(--sh-1)}
+  background:var(--plate);border:1px solid var(--glass-line);box-shadow:var(--sh-1);
+  -webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5)}
 .mm.cur{border-color:var(--line-2);box-shadow:var(--sh-2)}
 .mm h3{font-size:13px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);
   display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
@@ -584,9 +616,16 @@ main{padding:6px 18px 60px;min-width:0}
 .months.year .mc{height:26px;font-size:11px;border-radius:7px}
 .mc:hover{z-index:8;box-shadow:var(--sh-2)}
 .mc.void{background:transparent;pointer-events:none}
-.mc.s-site{background:var(--site)} .mc.s-home{background:var(--home)}
-.mc.s-flyin{background:var(--flyin)} .mc.s-flyout{background:var(--flyout)}
+.mc.s-site{background:var(--site);--tile:var(--site)} .mc.s-home{background:var(--home);--tile:var(--home)}
+.mc.s-flyin{background:var(--flyin);--tile:var(--flyin)} .mc.s-flyout{background:var(--flyout);--tile:var(--flyout)}
 .mc.s-site,.mc.s-home,.mc.s-flyin,.mc.s-flyout{color:#fff;font-weight:700}
+/* a tile is frosted glass in its own colour: a translucent fill, a lit top edge
+   and a soft inner shadow, so the plate behind it still reads through */
+.mc.s-site,.mc.s-home,.mc.s-flyin,.mc.s-flyout,
+.mc.m-leave,.mc.m-rdo,.mc.m-training,.mc.m-sick{
+  background-image:linear-gradient(180deg,rgba(255,255,255,var(--tile-lit)),rgba(255,255,255,0) 34%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,var(--tile-edge)),inset 0 -1px 0 rgba(0,0,0,.10);
+}
 html[data-theme="night"] .mc.s-site,html[data-theme="night"] .mc.s-home,
 html[data-theme="night"] .mc.s-flyin,html[data-theme="night"] .mc.s-flyout{color:rgba(0,0,0,.78)}
 .mc.pred.s-site{background:repeating-linear-gradient(135deg,var(--pred-a) 0 4px,var(--pred-b) 4px 8px);color:var(--ink)}
@@ -594,16 +633,19 @@ html[data-theme="night"] .mc.s-flyin,html[data-theme="night"] .mc.s-flyout{color
 .mc.pred.s-flyin{background:repeating-linear-gradient(135deg,var(--flyin) 0 4px,var(--pred-b) 4px 8px);color:var(--ink)}
 .mc.pred.s-flyout{background:repeating-linear-gradient(135deg,var(--flyout) 0 4px,var(--pred-b) 4px 8px);color:var(--ink)}
 html[data-theme="night"] .mc.pred.s-flyin,html[data-theme="night"] .mc.pred.s-flyout{color:var(--ink)}
-.mc.m-leave{background:var(--leave)} .mc.m-rdo{background:var(--rdo)}
-.mc.m-training{background:var(--training)} .mc.m-sick{background:var(--sick)}
+.mc.m-leave{background:var(--leave);--tile:var(--leave)} .mc.m-rdo{background:var(--rdo);--tile:var(--rdo)}
+.mc.m-training{background:var(--training);--tile:var(--training)} .mc.m-sick{background:var(--sick);--tile:var(--sick)}
 .mc.m-leave,.mc.m-rdo,.mc.m-training,.mc.m-sick{color:#fff;font-weight:700}
 html[data-theme="night"] .mc.m-leave,html[data-theme="night"] .mc.m-rdo,
 html[data-theme="night"] .mc.m-training,html[data-theme="night"] .mc.m-sick{color:rgba(0,0,0,.78)}
-.mc.today{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink);z-index:6}
-.mc.sel{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--focus);z-index:9}
+.mc.today{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--today-line)!important;z-index:6}
+.mc.sel{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--focus)!important;z-index:9}
 .mc .fx{position:absolute;top:3px;right:4px;font-size:8.5px;font-weight:900;line-height:1;opacity:.85}
-.mc .nt{position:absolute;bottom:3px;left:0;right:0;text-align:center;font-size:8px;font-weight:900;
-  letter-spacing:.06em;line-height:1;opacity:.9}
+.mc:has(.gl){padding-bottom:11px}
+.mc .gl{position:absolute;bottom:3px;left:0;right:0;display:grid;place-items:center;
+  pointer-events:none;opacity:.95}
+.mc .gl svg{width:11px;height:11px;stroke-width:2.9}
+.months.year .mc .gl{display:none}
 .sw-leave{background:var(--leave)} .sw-rdo{background:var(--rdo)}
 .sw-training{background:var(--training)} .sw-sick{background:var(--sick)}
 .chip.m-leave{background:var(--leave-t);color:var(--leave-ink);border-color:transparent}
@@ -736,6 +778,44 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
 .mgc .pill.on{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
 
 /* ============================================================
+   SETTINGS — collapsible sections
+   ============================================================ */
+.sect{
+  border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--glass-line);
+  box-shadow:var(--sh-1);margin-bottom:12px;overflow:hidden;
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);backdrop-filter:blur(20px) saturate(1.4)}
+.sect summary{
+  display:flex;align-items:center;gap:13px;min-height:66px;padding:12px 16px;
+  cursor:pointer;list-style:none;user-select:none;transition:background var(--t)}
+.sect summary::-webkit-details-marker{display:none}
+.sect summary:hover{background:var(--tint)}
+.sect summary:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+.sicon{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:12px;
+  background:var(--tint);color:var(--dim);border:1px solid var(--line)}
+.sicon svg{width:19px;height:19px;stroke-width:2.08}
+.stxt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 auto}
+.st1{font-size:16px;font-weight:750;letter-spacing:-.015em;line-height:1.2}
+.st2{font-size:12.5px;color:var(--faint);line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.schev{display:grid;place-items:center;width:26px;height:26px;flex:none;color:var(--faint);
+  transition:transform 220ms cubic-bezier(.2,.85,.3,1)}
+.schev svg{width:16px;height:16px;stroke-width:2.47}
+.sect[open] .schev{transform:rotate(90deg)}
+.sect[open] summary{border-bottom:1px solid var(--line)}
+.sbody{padding:18px 16px 20px;animation:lkIn 220ms cubic-bezier(.2,.85,.3,1) both}
+.subhead{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:750;
+  letter-spacing:-.01em;margin:0 0 12px}
+.subhead .chip{margin-left:auto;font-size:11.5px;min-height:26px}
+.sect summary > .chip{flex:none;font-size:11.5px;min-height:26px}
+.hidewrap{display:none}
+.sbody .divider{margin:22px 0}
+@media (max-width:560px){
+  .sect summary{min-height:62px;padding:11px 13px;gap:11px}
+  .sbody{padding:16px 13px 18px}
+  .st1{font-size:15px}
+}
+
+/* ============================================================
    FIND — year > month > date > result
    ============================================================ */
 .crumb{display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin:0 0 12px;min-height:40px}
@@ -786,10 +866,11 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
 .lkempty{margin:14px 0 0;font-size:13.5px;color:var(--dim)}
 
 /* result sheet — anchored card on desktop, bottom sheet on phone */
+/* On a laptop the answer sits in the flow directly under the calendar, so it can
+   never cover the range panel below it. Only the phone promotes it to a sheet. */
 .rail.resultsheet{
-  position:fixed;right:18px;bottom:18px;left:auto;top:auto;margin:0;z-index:150;
-  width:min(390px,calc(100vw - 36px));max-height:min(76vh,640px);overflow-y:auto;
-  opacity:0;transform:translateY(10px);pointer-events:none;visibility:visible;
+  position:static;width:auto;max-width:none;margin:16px 0 0;overflow:visible;
+  opacity:0;transform:translateY(8px);pointer-events:none;visibility:visible;
   transition:opacity 240ms ease,transform 240ms cubic-bezier(.2,.85,.3,1)}
 .rail.resultsheet.open{opacity:1;transform:none;pointer-events:auto}
 .resultsheet .sheetclose{display:flex;float:right;margin:-4px -4px 0 0;z-index:2}
@@ -834,6 +915,8 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
   .rail{visibility:hidden}
   .rail.open{transform:translateY(0);visibility:visible}
   body.sheeting{overflow:hidden}
+  /* while a sheet owns the screen the tab bar is inert — say so, don't just ignore taps */
+  body.sheeting nav.tabs.bottom{opacity:.3;pointer-events:none;filter:saturate(.35)}
   .sheetclose{display:flex;position:sticky;top:0;float:right;margin:-4px -4px 0 0;z-index:2}
   .sheetgrip{display:block;width:40px;height:4px;border-radius:99px;background:var(--line-2);margin:0 auto 14px}
   .sheetscrim{position:fixed;inset:0;background:rgba(24,20,16,.35);z-index:110;opacity:0;pointer-events:none;
@@ -841,9 +924,9 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
   .sheetscrim.on{opacity:1;pointer-events:auto}
 
   .rail.resultsheet{
-    left:0;right:0;bottom:0;top:auto;width:auto;max-width:none;margin:0;
+    position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;max-width:none;margin:0;z-index:150;
     border-radius:22px 22px 0 0;padding:16px 18px calc(20px + var(--safe-b));
-    max-height:84vh;opacity:1;pointer-events:auto;visibility:hidden;
+    max-height:84vh;overflow-y:auto;opacity:1;pointer-events:auto;visibility:hidden;
     transform:translateY(102%);transition:transform 260ms cubic-bezier(.2,.85,.3,1)}
   .rail.resultsheet.open{transform:translateY(0);visibility:visible}
   .yearpick button{min-height:70px;font-size:20px}
@@ -1025,6 +1108,28 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
         </div>
       </div>
 
+<aside class="rail resultsheet" id="resultSheet" aria-label="Shift result" hidden>
+  <span class="sheetgrip" aria-hidden="true"></span>
+  <button class="pill ico ghost sheetclose" id="resX" aria-label="Close">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.47" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+  <div class="resTop">
+    <div class="shift-feature" id="resMed"></div>
+    <div class="resHead">
+      <div class="mlabel" id="resDate">—</div>
+      <div class="resAns" id="resAns">—</div>
+      <div class="resSub" id="resSub"></div>
+    </div>
+  </div>
+  <div class="rchips" id="resChips"></div>
+  <div class="rsep"></div>
+  <div id="resRows"></div>
+  <div class="actions" style="margin-top:16px">
+    <button class="pill" id="resBack">Back to month</button>
+    <button class="pill ghost" id="resToday">Today</button>
+  </div>
+</aside>
+
       <div class="vhead" style="margin-top:26px"><h2>Check a date range</h2></div>
       <div class="pane" style="padding:18px">
         <div class="formrow" style="margin-bottom:12px">
@@ -1050,9 +1155,15 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
     <!-- DATA -->
     <section id="v-settings" hidden>
 
-      <div class="panel">
-        <div class="phead"><h2>Load a travel confirmation</h2></div>
-        <div class="pbody">
+      <details class="sect" id="sect-add">
+        <summary>
+          <span class="sicon" aria-hidden="true"></span>
+          <span class="stxt"><span class="st1">Add to your roster</span><span class="st2">From a PDF, a pattern, or by hand</span></span>
+          <span class="schev" aria-hidden="true"></span>
+        </summary>
+        <div class="sbody">
+          <h3 class="subhead">Load a travel confirmation</h3>
+
           <div class="drop" id="drop">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.32" stroke-linecap="round" stroke-linejoin="round" style="color:var(--faint)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
             <div><div class="t1">Drop your PDF here</div>
@@ -1063,12 +1174,9 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
           <p class="hint" style="margin:14px 0 0"><strong style="color:var(--dim)">Nothing leaves your device.</strong>
           The PDF is read inside this page and your roster is stored only in this browser. No account, no server,
           no connection of any kind &mdash; so keep a backup.</p>
-        </div>
-      </div>
+          <div class="divider"></div>
+          <h3 class="subhead">Build from a pattern</h3>
 
-      <div class="panel">
-        <div class="phead"><h2>Build a roster from a pattern</h2></div>
-        <div class="pbody">
           <p class="hint" style="margin:0 0 16px">No PDF? Pick your swing pattern and the app lays out the whole year.</p>
           <div class="formrow">
             <div class="field"><label for="patStart">First fly-in</label><input type="date" id="patStart"></div>
@@ -1090,6 +1198,13 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
             <button class="pill" data-on="28" data-off="14">4 : 2</button>
             <button class="pill" data-on="28" data-off="7">4 : 1</button>
           </div>
+          <div class="mlabel" style="margin:18px 0 0">Shift type</div>
+          <div class="markgrid" id="patShift">
+            <button class="pill on" data-pshift="">Not set</button>
+            <button class="pill" data-pshift="day">Day shift</button>
+            <button class="pill" data-pshift="night">Night shift</button>
+          </div>
+          <p class="hint" style="margin:8px 0 0">Marks every on-site day of these swings, so the calendar can show a sun or a moon.</p>
           <div class="formrow" style="margin-top:18px">
             <div class="field"><label for="patOn">Days away</label><input type="number" id="patOn" min="1" max="60" value="8"></div>
             <div class="field"><label for="patOff">Days home</label><input type="number" id="patOff" min="1" max="60" value="6"></div>
@@ -1099,18 +1214,21 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
           <div class="actions" style="margin-top:14px">
             <button class="pill primary" id="patAdd">Add these swings</button>
           </div>
-        </div>
-      </div>
+          <div class="divider"></div>
+          <h3 class="subhead">Add one swing by hand</h3>
 
-      <div class="panel">
-        <div class="phead"><h2>Add one swing by hand</h2></div>
-        <div class="pbody">
           <div class="formrow">
             <div class="field"><label for="inDate">Fly in</label><input type="date" id="inDate"></div>
             <div class="field"><label for="outDate">Fly out</label><input type="date" id="outDate"></div>
             <div class="field" style="flex:0 0 116px;min-width:116px"><label for="siteCode">Site</label><input type="text" id="siteCode" value="TBO" maxlength="4"></div>
           </div>
-          <div class="actions" style="margin-top:14px"><button class="pill" id="addSwing">Add swing</button></div>
+          <div class="mlabel" style="margin:16px 0 0">Shift type</div>
+          <div class="markgrid" id="swShift">
+            <button class="pill on" data-sshift="">Not set</button>
+            <button class="pill" data-sshift="day">Day shift</button>
+            <button class="pill" data-sshift="night">Night shift</button>
+          </div>
+          <div class="actions" style="margin-top:16px"><button class="pill" id="addSwing">Add swing</button></div>
           <div class="divider"></div>
           <h3 style="font-size:15px;margin-bottom:7px">Carry your cycle forward</h3>
           <p class="hint" style="margin:0 0 14px">Repeats your most recent cycle. Predicted days appear striped.</p>
@@ -1123,11 +1241,16 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
           </div>
           <div id="cycleNote" class="hint" style="margin-top:14px">&nbsp;</div>
         </div>
-      </div>
+      </details>
 
-      <div class="panel">
-        <div class="phead"><h2>Mark a stretch of days</h2></div>
-        <div class="pbody">
+      <details class="sect" id="sect-mark">
+        <summary>
+          <span class="sicon" aria-hidden="true"></span>
+          <span class="stxt"><span class="st1">Mark days</span><span class="st2">Leave, RDO, training, sick, day or night</span></span>
+          <span class="schev" aria-hidden="true"></span>
+        </summary>
+        <div class="sbody">
+
           <p class="hint" style="margin:0 0 14px">A whole nightshift swing, a block of leave, a training week &mdash; set it in one go.</p>
           <div class="formrow">
             <div class="field"><label for="mkFrom">From</label><input type="date" id="mkFrom"></div>
@@ -1148,11 +1271,16 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
           </div>
           <div id="bulkNote" class="hint" style="margin-top:14px">&nbsp;</div>
         </div>
-      </div>
+      </details>
 
-      <div class="panel">
-        <div class="phead"><h2>Reminders</h2></div>
-        <div class="pbody">
+      <details class="sect" id="sect-rem">
+        <summary>
+          <span class="sicon" aria-hidden="true"></span>
+          <span class="stxt"><span class="st1">Reminders</span><span class="st2">When your phone should nudge you</span></span>
+          <span class="schev" aria-hidden="true"></span>
+        </summary>
+        <div class="sbody">
+
           <p class="hint" style="margin:0 0 16px">These go into the calendar file, so your phone's own alerts do the reminding &mdash; they work with the app closed and with no signal.</p>
           <div id="remList"></div>
           <div class="divider"></div>
@@ -1161,11 +1289,16 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
           </div>
           <p class="hint" style="margin:12px 0 0">The app can only alert you while it's open, which is why the calendar does the real work.</p>
         </div>
-      </div>
+      </details>
 
-      <div class="panel">
-        <div class="phead"><h2>Calendar file &amp; backup</h2></div>
-        <div class="pbody">
+      <details class="sect" id="sect-cal">
+        <summary>
+          <span class="sicon" aria-hidden="true"></span>
+          <span class="stxt"><span class="st1">Calendar file and backup</span><span class="st2">Send to your phone's calendar, save a copy</span></span>
+          <span class="schev" aria-hidden="true"></span>
+        </summary>
+        <div class="sbody">
+
           <div class="actions" style="margin-bottom:14px">
             <button class="pill primary" id="icsBtn">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.47" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
@@ -1185,11 +1318,17 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
           <p class="hint" style="margin:12px 0 0"><strong style="color:var(--dim)">Don't publish that file anywhere.</strong>
           It lists every date your place is empty.</p>
         </div>
-      </div>
+      </details>
 
-      <div class="panel">
-        <div class="phead"><h2>Your details</h2></div>
-        <div class="pbody">
+      <details class="sect" id="sect-ros">
+        <summary>
+          <span class="sicon" aria-hidden="true"></span>
+          <span class="stxt"><span class="st1">Your roster</span><span class="st2">Home airport, swings and flights on record</span></span>
+          <span class="schev" aria-hidden="true"></span>
+        </summary>
+        <div class="sbody">
+          <h3 class="subhead">Your details</h3>
+
           <div class="formrow">
             <div class="field" style="flex:0 0 150px;min-width:150px">
               <label for="homeAir">Home airport</label><input type="text" id="homeAir" maxlength="3" placeholder="PER"></div>
@@ -1198,12 +1337,35 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
           <p class="hint" style="margin:14px 0 0">The airport you fly out of and back to. Worked out from your first PDF &mdash; only change it if that came out wrong.</p>
           <div class="divider"></div>
           <div class="actions"><button class="pill danger" id="wipeBtn">Delete all roster data</button></div>
-        </div>
-      </div>
+          <div class="divider"></div>
+          <h3 class="subhead">Swings<span class="chip" id="swCount">0</span></h3>
 
-      <div class="panel" id="aboutPanel">
-        <div class="phead"><h2>About</h2><div class="grow"></div><span class="chip" id="verChip">v1.1</span></div>
-        <div class="pbody">
+          <div class="tscroll"><table>
+            <thead><tr><th>#</th><th>Fly in</th><th>Fly out</th><th>Away</th><th>Home after</th><th>Camp</th><th>Status</th></tr></thead>
+            <tbody id="swBody"></tbody>
+          </table></div>
+          <div class="empty" id="swEmpty">No swings yet.</div>
+          <div class="divider"></div>
+          <h3 class="subhead">All flights<span class="chip" id="flCount">0</span></h3>
+
+          <div class="tscroll"><table>
+            <thead><tr><th>Date</th><th>Dir</th><th>Route</th><th>Flight</th><th>Check-in</th><th>Depart</th><th>Arrive</th><th></th></tr></thead>
+            <tbody id="flBody"></tbody>
+          </table></div>
+          <div class="empty" id="flEmpty">No flights yet.</div>
+          <p class="hint" style="margin:16px 0 0" id="verLine">&nbsp;</p>
+        </div>
+      </details>
+
+      <details class="sect" id="sect-abt">
+        <summary>
+          <span class="sicon" aria-hidden="true"></span>
+          <span class="stxt"><span class="st1">About this app</span><span class="st2">What changed, and the link to share</span></span>
+          <span class="chip" id="verChip">v1.4</span><span class="hidewrap" hidden></span>
+          <span class="schev" aria-hidden="true"></span>
+        </summary>
+        <div class="sbody">
+
           <p style="margin:0 0 16px;font-size:15px;line-height:1.65">I'm a FIFO worker who got tired of squinting at travel
           confirmations to work out when I'm home. I wanted something simple but genuinely useful for managing and tracking
           my roster &mdash; so this is it. Load your confirmation, see your year at a glance, and know straight away whether
@@ -1219,30 +1381,8 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
           <div class="mlabel">What's new</div>
           <div id="aboutHist" style="margin-top:12px"></div>
         </div>
-      </div>
+      </details>
 
-      <div class="panel">
-        <div class="phead"><h2>Swings</h2><div class="grow"></div><span class="chip" id="swCount">0</span></div>
-        <div class="pbody">
-          <div class="tscroll"><table>
-            <thead><tr><th>#</th><th>Fly in</th><th>Fly out</th><th>Away</th><th>Home after</th><th>Camp</th><th>Status</th></tr></thead>
-            <tbody id="swBody"></tbody>
-          </table></div>
-          <div class="empty" id="swEmpty">No swings yet.</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="phead"><h2>All flights</h2><div class="grow"></div><span class="chip" id="flCount">0</span></div>
-        <div class="pbody">
-          <div class="tscroll"><table>
-            <thead><tr><th>Date</th><th>Dir</th><th>Route</th><th>Flight</th><th>Check-in</th><th>Depart</th><th>Arrive</th><th></th></tr></thead>
-            <tbody id="flBody"></tbody>
-          </table></div>
-          <div class="empty" id="flEmpty">No flights yet.</div>
-          <p class="hint" style="margin:16px 0 0" id="verLine">&nbsp;</p>
-        </div>
-      </div>
     </section>
 
   </main>
@@ -1295,27 +1435,6 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
     <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.98" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"/></svg></span>Settings</button>
 </nav>
 
-<aside class="rail resultsheet" id="resultSheet" aria-label="Shift result" hidden>
-  <span class="sheetgrip" aria-hidden="true"></span>
-  <button class="pill ico ghost sheetclose" id="resX" aria-label="Close">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.47" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-  </button>
-  <div class="resTop">
-    <div class="shift-feature" id="resMed"></div>
-    <div class="resHead">
-      <div class="mlabel" id="resDate">—</div>
-      <div class="resAns" id="resAns">—</div>
-      <div class="resSub" id="resSub"></div>
-    </div>
-  </div>
-  <div class="rchips" id="resChips"></div>
-  <div class="rsep"></div>
-  <div id="resRows"></div>
-  <div class="actions" style="margin-top:16px">
-    <button class="pill" id="resBack">Back to month</button>
-    <button class="pill ghost" id="resToday">Today</button>
-  </div>
-</aside>
 
 <div class="sheetscrim" id="scrim"></div>
 
@@ -1398,8 +1517,9 @@ const uid=()=>"x"+Math.random().toString(36).slice(2,10)+Date.now().toString(36)
 const monthKey=(y,m)=>{while(m<0){m+=12;y--}while(m>11){m-=12;y++}return{y,m}};
 
 /* ---------------- version ---------------- */
-const APP_VERSION="1.4";
+const APP_VERSION="1.5";
 const VERSIONS=[
+ ["1.5","Frosted glass throughout \u2014 the calendar sits on the scene instead of hiding it, and each day is a tinted glass tile. A sun or a moon on the day itself once you set a swing to days or nights. Settings is six sections instead of one long scroll. Fixes: the result card no longer covers the range panel, the side panel no longer slides under the header, and pinch-zoom works properly."],
  ["1.4","Find a shift replaces Check: tap year, then month, then the day \u2014 no typing. Every answer in plain words with a matching medallion, and one icon set drawn at one weight throughout."],
  ["1.3","Night Shift Cinema \u2014 night mode now sits on real outback imagery that shifts with your roster: site at night, the airstrip when you're travelling, first light when you're home."],
  ["1.2","Reads far more PDF layouts. Build a roster straight from a pattern (7:7, 2:1 and the rest). Reminders you can set yourself. Settings and About, and a link you can share."],
@@ -1672,6 +1792,17 @@ function statusLabel(e,ds){
        : e.status==="site" ? "On site" : "At home";
 }
 
+/* A sun or a moon on the tile, and only when the roster actually says so.
+   Kinds and travel keep their corner letter; this is the shift line only. */
+function shiftGlyph(ds,compact){
+  if(compact) return null;
+  const k=shiftKind(ds);
+  if(k!=="site-day"&&k!=="site-night") return null;
+  const w=el("span","gl");
+  w.appendChild(svgIco(k==="site-night"?"night":"day"));
+  return w;
+}
+
 /* ---------------- month card builder ---------------- */
 function monthCard(y,m,opts){
   opts=opts||{};
@@ -1692,7 +1823,7 @@ function monthCard(y,m,opts){
     if(ds===t)b.classList.add("today"); if(ds===selected)b.classList.add("sel");
     if(mk&&mk.k) b.appendChild(el("span","fx",MARKS[mk.k].ltr));
     else if(e&&e.status==="travel"&&e.flight&&!opts.compact) b.appendChild(el("span","fx",e.flight.dir==="in"?"\u2193":"\u2191"));
-    if(mk&&mk.s==="night"&&!opts.compact) b.appendChild(el("span","nt","N"));
+    const gl=shiftGlyph(ds,opts.compact); if(gl) b.appendChild(gl);
     b.setAttribute("aria-label",fmtLong(ds)+" — "+describe(ds,true));
     g.appendChild(b); cells.push({ds,node:b});
   }
@@ -1714,14 +1845,26 @@ function render(){
 }
 
 function renderLegends(){
-  const used=[]; const seen=new Set();
-  for(const d in S.marks){ const k=S.marks[d].k; if(k&&!seen.has(k)){seen.add(k);used.push(k);} }
+  const used=[]; const seen=new Set(); let anyDay=false, anyNight=false;
+  for(const d in S.marks){
+    const m=S.marks[d];
+    if(m.k&&!seen.has(m.k)){seen.add(m.k);used.push(m.k);}
+    if(m.s==="day")anyDay=true; else if(m.s==="night")anyNight=true;
+  }
   $$(".legend").forEach(lg=>{
     lg.querySelectorAll(".dyn").forEach(n=>n.remove());
     used.forEach(k=>{
       const sp=el("span","dyn");
       sp.appendChild(el("i","sw-"+k));
       sp.appendChild(document.createTextNode(MARKS[k].lbl));
+      lg.appendChild(sp);
+    });
+    /* the sun and moon only earn a legend entry once they appear on the calendar */
+    [[anyDay,"day","Day shift"],[anyNight,"night","Night shift"]].forEach(([on,ico,lbl])=>{
+      if(!on) return;
+      const sp=el("span","dyn glyph");
+      sp.appendChild(svgIco(ico,13));
+      sp.appendChild(document.createTextNode(lbl));
       lg.appendChild(sp);
     });
   });
@@ -2022,16 +2165,36 @@ function renderDatePick(){
     if(ds===t){ b.classList.add("today"); b.setAttribute("aria-current","date"); }
     if(ds===lookup.date) b.classList.add("sel");
     if(mk&&mk.k) b.appendChild(el("span","fx",MARKS[mk.k].ltr));
-    const k=shiftKind(ds);
-    if(k!=="none"&&k!=="mark"&&k!=="home"){
-      const w=el("span","gl"); w.appendChild(svgIco(LK_ANS[k].i)); b.appendChild(w);
-    }
+    else if(e&&e.status==="travel"&&e.flight) b.appendChild(el("span","fx",e.flight.dir==="in"?"\u2193":"\u2191"));
+    const gl=shiftGlyph(ds,false); if(gl) b.appendChild(gl);
     b.setAttribute("aria-label",fmtLong(ds)+" — "+describe(ds,true));
     g.appendChild(b); cells.push({ds,node:b});
   }
   while(cells.length%7) cells.push(null);
   chunk(cells,7).forEach(applyBands);
 }
+
+/* ---- settings section icons ---- */
+Object.assign(ICO,{
+  plus:'<path d="M12 4.6v14.8M4.6 12h14.8"/>',
+  bell:'<path d="M18 8.6a6 6 0 1 0-12 0c0 6.2-2.4 7.9-2.4 7.9h16.8S18 14.8 18 8.6Z"/><path d="M13.7 20.4a2 2 0 0 1-3.4 0"/>',
+  share:'<path d="M4 12.4V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6.6"/><path d="M16 6.6 12 2.6 8 6.6M12 2.6V15"/>',
+  list:'<path d="M8.4 6.4h12M8.4 12h12M8.4 17.6h12"/><path d="M3.9 6.4h.02M3.9 12h.02M3.9 17.6h.02"/>',
+  info:'<circle cx="12" cy="12" r="9.2"/><path d="M12 16.4v-4.8M12 8.1h.02"/>',
+  chev:'<path d="m9.4 5.4 6.6 6.6-6.6 6.6"/>'
+});
+const SECT_ICON={"sect-add":"plus","sect-mark":"mark","sect-rem":"bell",
+                 "sect-cal":"share","sect-ros":"list","sect-abt":"info"};
+$$(".sect").forEach(d=>{
+  const i=d.querySelector(".sicon"), c=d.querySelector(".schev");
+  if(i) i.appendChild(svgIco(SECT_ICON[d.id]||"info"));
+  if(c) c.appendChild(svgIco("chev"));
+  /* one open at a time keeps the page about a screen tall */
+  d.addEventListener("toggle",()=>{
+    if(!d.open) return;
+    $$(".sect").forEach(o=>{ if(o!==d) o.open=false; });
+  });
+});
 
 /* ---- result sheet ---- */
 function renderResult(){
@@ -2149,6 +2312,38 @@ function renderRange(){
     : home===0 && free===0
       ? "You are away for the whole of this range."
       : "You're away "+away+" of "+total+" days"+(pred?" ("+pred+" of them predicted, not confirmed)":"")+".";
+}
+
+/* ---------------- layout metrics ---------------- */
+/* --hdr feeds the sticky rail's top offset. It was a guess (60px) against a real
+   header of 123-133px, so the rail tucked under the header as soon as you
+   scrolled. Measure the header and keep the token honest. */
+let hdrH=0, hdrQ=0;
+function syncHeaderVar(){
+  if(hdrQ) return;
+  hdrQ=requestAnimationFrame(()=>{
+    hdrQ=0;
+    const h=document.querySelector("header"); if(!h) return;
+    const v=Math.round(h.getBoundingClientRect().height);
+    if(v>0 && v!==hdrH){ hdrH=v; document.documentElement.style.setProperty("--hdr-h",v+"px"); }
+  });
+}
+addEventListener("resize",syncHeaderVar);
+addEventListener("orientationchange",syncHeaderVar);
+if(window.ResizeObserver){
+  const hdr=document.querySelector("header");
+  if(hdr) new ResizeObserver(syncHeaderVar).observe(hdr);
+}
+
+/* Pinch-zoom: fixed chrome stays welded to the layout viewport, so it sits on
+   top of whatever you zoomed in to read. Detect the zoom and let it scroll away. */
+function syncZoom(){
+  const vv=window.visualViewport; if(!vv) return;
+  document.documentElement.classList.toggle("zoomed", vv.scale>1.05);
+}
+if(window.visualViewport){
+  visualViewport.addEventListener("resize",syncZoom);
+  visualViewport.addEventListener("scroll",syncZoom);
 }
 
 /* ---------------- night-shift cinema ---------------- */
@@ -2775,6 +2970,24 @@ $("#revOk").onclick=()=>{
 };
 
 /* ---------------- build a roster from a pattern ---------------- */
+let patShift=null, swShift=null;
+$$("[data-pshift]").forEach(b=>b.addEventListener("click",()=>{
+  patShift=b.dataset.pshift||null;
+  $$("[data-pshift]").forEach(x=>x.classList.toggle("on",(x.dataset.pshift||null)===patShift));
+}));
+$$("[data-sshift]").forEach(b=>b.addEventListener("click",()=>{
+  swShift=b.dataset.sshift||null;
+  $$("[data-sshift]").forEach(x=>x.classList.toggle("on",(x.dataset.sshift||null)===swShift));
+}));
+/* a swing's shift type is stored on its on-site days — the same field a manual
+   mark uses, so there is one source of truth and nothing to migrate */
+function markSwingShift(inDate,outDate,shift){
+  if(!shift) return 0;
+  let n=0;
+  for(let d=addDays(inDate,1); d<outDate && n<400; d=addDays(d,1)){ setMark(d,{s:shift}); n++; }
+  return n;
+}
+
 function patSpec(){
   const on=Math.max(1,Math.min(60,parseInt($("#patOn").value,10)||0));
   const off=Math.max(1,Math.min(60,parseInt($("#patOff").value,10)||0));
@@ -2834,13 +3047,16 @@ $("#patAdd").onclick=()=>{
   if(!r){toast("Pick a first fly-in date","err");return;}
   const {p,out}=r;
   if(!confirm("Add "+p.n+" swings on a "+p.on+":"+p.off+" pattern, from "+fmtShort(out[0].in)+"?\n\nThis adds to your roster \u2014 nothing existing is removed."))return;
+  let marked=0;
   for(const sw of out){
     S.flights.push({id:uid(),date:sw.in,dir:"in",from:S.homeAirport,to:p.site,flightNo:"",checkIn:null,dep:null,arr:null,source:"manual"});
     S.flights.push({id:uid(),date:sw.out,dir:"out",from:p.site,to:S.homeAirport,flightNo:"",checkIn:null,dep:null,arr:null,source:"manual"});
+    marked+=markSwingShift(sw.in,sw.out,patShift);
   }
   const d=fromISO(out[0].in); rAnchorY=d.getFullYear(); rAnchorM=d.getMonth(); yearShown=d.getFullYear();
   save(); setView("roster"); render(); updateCycleNote();
-  toast("Added "+p.n+" swings on a "+p.on+":"+p.off+" pattern","ok");
+  toast("Added "+p.n+" swings on a "+p.on+":"+p.off+" pattern"+
+        (marked?" \u00b7 "+marked+" days set to "+patShift+" shift":""),"ok");
 };
 
 /* ---------------- reminders ---------------- */
@@ -2930,8 +3146,10 @@ $("#addSwing").onclick=()=>{
   if(b<a){toast("Fly-out must be on or after fly-in","err");return;}
   S.flights.push({id:uid(),date:a,dir:"in",from:S.homeAirport,to:site,flightNo:"",checkIn:null,dep:null,arr:null,source:"manual"});
   S.flights.push({id:uid(),date:b,dir:"out",from:site,to:S.homeAirport,flightNo:"",checkIn:null,dep:null,arr:null,source:"manual"});
+  const marked=markSwingShift(a,b,swShift);
   save();const d=fromISO(a);rAnchorY=d.getFullYear();rAnchorM=d.getMonth();
-  render();updateCycleNote();toast("Swing added: "+fmtTiny(a)+" to "+fmtTiny(b),"ok");
+  render();updateCycleNote();
+  toast("Swing added: "+fmtTiny(a)+" to "+fmtTiny(b)+(marked?" \u00b7 "+swShift+" shift":""),"ok");
 };
 const detectCycle=()=>cycleFrom(buildSwings());
 function updateCycleNote(){
@@ -3194,7 +3412,7 @@ $("#homeAir").value=S.homeAirport;
 $("#patStart").value=todayISO();
 $("#optBanner").checked=S.banner!==false;
 $("#verLine").textContent="FIFO Roster v"+APP_VERSION;
-renderReminders(); renderAbout();
+renderReminders(); renderAbout(); syncHeaderVar(); syncZoom();
 setView("roster"); render(); updateCycleNote();
 if(!S.flights.length) setView("settings");
 if(loadProblem==="corrupt")
