@@ -36,14 +36,14 @@
   --ink:#191C22; --dim:#575249; --faint:#6B6455;
 
   /* deep enough that white text on a tile clears 4.5:1 — measured, not eyeballed */
-  --site:#B45D2B; --home:#338264; --flyin:#2E6FBF; --flyout:#7A56A8;
+  --site:#A25326; --home:#2D7559; --flyin:#2863AC; --flyout:#6D4D97;
   --blank:rgba(26,29,35,.055);
   --site-t:#FBEEE4; --home-t:#E9F4EF; --flyin-t:#E8EFF9; --flyout-t:#F0EAF8;
   --site-ink:#9E4715; --home-ink:#256045; --flyin-ink:#25528B; --flyout-ink:#573A82;
   --pred-a:#E0A170; --pred-b:rgba(26,29,35,.05);
   --predh-a:#8FBCA8; --predh-b:rgba(26,29,35,.05);
 
-  --leave:#B95182; --rdo:#567D70; --training:#5860B4; --sick:#9A6656;
+  --leave:#A64875; --rdo:#4D7064; --training:#4E56A2; --sick:#8A5B4D;
   --leave-t:#FAE9F1; --rdo-t:#E9F3F0; --training-t:#EAEBF8; --sick-t:#F6ECE8;
   --leave-ink:#8E2E5D; --rdo-ink:#356354; --training-ink:#343C87; --sick-ink:#6E3F31;
 
@@ -109,7 +109,7 @@ html.zoomed .rail:not(.open){position:static}
 html.zoomed body.sheeting{overflow:auto}
 [hidden]{display:none!important}
 html,body{margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden}
 body{
   background:var(--paper);color:var(--ink);
   font-family:var(--font);font-size:16px;line-height:1.5;
@@ -142,11 +142,30 @@ body{
   --shift-night:#D5E0EE; --shift-day:#FFBB52; --shift-flyin:#77DCEF; --shift-flyout:#B89AFF;
   --today-line:#B8710F;
   /* how much of what's behind shows through a month card, and how a tile is lit */
-  --plate:rgba(255,255,255,.44); --surface:rgba(255,255,255,.62); --tile-lit:.20; --tile-edge:.34;
+  --plate:rgba(255,255,255,.44); --surface:rgba(255,255,255,.62);
+  --tile-lit:.11; --tile-edge:.40; --tile-sheen:.24; --tile-foot:.08;
+  --site-g:rgba(162,83,38,0.86);
+  --home-g:rgba(45,117,89,0.86);
+  --flyin-g:rgba(40,99,172,0.86);
+  --flyout-g:rgba(109,77,151,0.86);
+  --leave-g:rgba(166,72,117,0.86);
+  --rdo-g:rgba(77,112,100,0.86);
+  --training-g:rgba(78,86,162,0.86);
+  --sick-g:rgba(138,91,77,0.86);
+
   --chrome:rgba(247,245,242,.985);   /* header + tab bar: content must not show through */
 }
 html[data-theme="night"]{ --today-line:#FFB343; --plate:rgba(10,15,23,.34); --surface:rgba(9,13,20,.64); --chrome:rgba(9,13,20,.985);
-  --tile-lit:.13; --tile-edge:.20 }
+  --tile-lit:.14; --tile-edge:.30; --tile-sheen:.22; --tile-foot:.10;
+  --site-g:rgba(255,187,82,0.88);
+  --home-g:rgba(47,194,158,0.88);
+  --flyin-g:rgba(119,220,239,0.88);
+  --flyout-g:rgba(184,154,255,0.88);
+  --leave-g:rgba(238,126,175,0.88);
+  --rdo-g:rgba(95,192,166,0.88);
+  --training-g:rgba(138,146,238,0.88);
+  --sick-g:rgba(206,139,121,0.88);
+}
 .cinema-stage{display:none}
 html[data-theme="night"] .cinema-stage{
   display:block;position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;
@@ -491,14 +510,20 @@ input[type=date],input[type=text],input[type=number],select{
   min-height:var(--tap);padding:0 15px;background:var(--card);color:var(--ink);
   border:1.5px solid var(--line-2);border-radius:var(--r-pill);
   font-family:var(--font);font-size:16px;font-variant-numeric:tabular-nums;
-  transition:border-color var(--t);width:100%;
+  transition:border-color var(--t);
+  width:100%;min-width:0;max-width:100%;
 }
+/* Safari sizes a date field to its rendered text plus icon and will not shrink
+   below that, which made the whole page wider than the screen: one card then
+   ends at the screen edge while the next stretches past it. Dropping the native
+   appearance removes that intrinsic width. The date picker still opens on tap. */
+input[type=date]{-webkit-appearance:none;appearance:none}
 input:hover,select:hover{border-color:var(--ink)}
 input:focus,select:focus{outline:3px solid var(--focus);outline-offset:1px}
 html[data-theme="night"] ::-webkit-calendar-picker-indicator{filter:invert(.85)}
-.field{display:flex;flex-direction:column;gap:7px;min-width:150px;flex:1 1 160px}
+.field{display:flex;flex-direction:column;gap:7px;min-width:0;flex:1 1 160px}
 .field label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--faint)}
-.formrow{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.formrow{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;min-width:0}
 .actions{display:flex;gap:10px;flex-wrap:wrap}
 .chiprow{display:flex;gap:8px;flex-wrap:wrap}
 
@@ -525,10 +550,11 @@ html[data-theme="night"] ::-webkit-calendar-picker-indicator{filter:invert(.85)}
    HEADER
    ============================================================ */
 header{position:sticky;top:0;z-index:60;padding-top:var(--safe-t)}
-/* content dissolves under the header instead of being sliced at a hard edge */
+/* a crisp edge under the opaque header — a gradient here just dimmed whatever
+   passed beneath it, which looked like a smear rather than a boundary */
 header::after{
-  content:"";position:absolute;left:0;right:0;top:100%;height:20px;pointer-events:none;
-  background:linear-gradient(to bottom,var(--chrome) 0,transparent 100%);
+  content:"";position:absolute;left:0;right:0;top:100%;height:1px;pointer-events:none;
+  background:var(--line);
 }
 .bar{display:flex;align-items:center;gap:12px;padding:10px 18px;min-height:var(--hdr)}
 .logo{display:flex;align-items:center;gap:10px;flex:none;min-width:0}
@@ -625,28 +651,51 @@ main{padding:6px 18px 60px;min-width:0}
 .months.year .mc{height:26px;font-size:11px;border-radius:7px}
 .mc:hover{z-index:8;box-shadow:var(--sh-2)}
 .mc.void{background:transparent;pointer-events:none}
-.mc.s-site{background:var(--site);--tile:var(--site)} .mc.s-home{background:var(--home);--tile:var(--home)}
-.mc.s-flyin{background:var(--flyin);--tile:var(--flyin)} .mc.s-flyout{background:var(--flyout);--tile:var(--flyout)}
-.mc.s-site,.mc.s-home,.mc.s-flyin,.mc.s-flyout{color:#fff;font-weight:700}
-/* a tile is frosted glass in its own colour: a translucent fill, a lit top edge
-   and a soft inner shadow, so the plate behind it still reads through */
+/* ------------------------------------------------------------------
+   A day is a pane of coloured glass. The month card behind it is already
+   one blurred plate (never a blur per cell — 120 of those a month would
+   cripple the phone), so the tile only needs to be translucent and lit:
+   a slightly see-through fill, a diagonal sheen, a bright top edge and a
+   soft shadow at the foot.
+   ------------------------------------------------------------------ */
+.mc.s-site  {background-color:var(--site-g);  --tile:var(--site)}
+.mc.s-home  {background-color:var(--home-g);  --tile:var(--home)}
+.mc.s-flyin {background-color:var(--flyin-g); --tile:var(--flyin)}
+.mc.s-flyout{background-color:var(--flyout-g);--tile:var(--flyout)}
+.mc.m-leave {background-color:var(--leave-g); --tile:var(--leave)}
+.mc.m-rdo   {background-color:var(--rdo-g);   --tile:var(--rdo)}
+.mc.m-training{background-color:var(--training-g);--tile:var(--training)}
+.mc.m-sick  {background-color:var(--sick-g);  --tile:var(--sick)}
+
 .mc.s-site,.mc.s-home,.mc.s-flyin,.mc.s-flyout,
 .mc.m-leave,.mc.m-rdo,.mc.m-training,.mc.m-sick{
-  background-image:linear-gradient(180deg,rgba(255,255,255,var(--tile-lit)),rgba(255,255,255,0) 34%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,var(--tile-edge)),inset 0 -1px 0 rgba(0,0,0,.10);
+  color:#fff;font-weight:700;
+  background-image:
+    linear-gradient(152deg,rgba(255,255,255,var(--tile-sheen)) 0 26%,rgba(255,255,255,0) 62%),
+    linear-gradient(180deg,rgba(255,255,255,var(--tile-lit)) 0,rgba(0,0,0,var(--tile-foot)) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,var(--tile-edge)),
+    inset 0 -1px 0 rgba(0,0,0,.16),
+    inset 0 0 0 1px rgba(255,255,255,.05);
+  text-shadow:0 1px 1px rgba(0,0,0,.16);
 }
 html[data-theme="night"] .mc.s-site,html[data-theme="night"] .mc.s-home,
-html[data-theme="night"] .mc.s-flyin,html[data-theme="night"] .mc.s-flyout{color:rgba(0,0,0,.78)}
-.mc.pred.s-site{background:repeating-linear-gradient(135deg,var(--pred-a) 0 4px,var(--pred-b) 4px 8px);color:var(--ink)}
-.mc.pred.s-home{background:repeating-linear-gradient(135deg,var(--predh-a) 0 4px,var(--predh-b) 4px 8px);color:var(--ink)}
-.mc.pred.s-flyin{background:repeating-linear-gradient(135deg,var(--flyin) 0 4px,var(--pred-b) 4px 8px);color:var(--ink)}
-.mc.pred.s-flyout{background:repeating-linear-gradient(135deg,var(--flyout) 0 4px,var(--pred-b) 4px 8px);color:var(--ink)}
-html[data-theme="night"] .mc.pred.s-flyin,html[data-theme="night"] .mc.pred.s-flyout{color:var(--ink)}
-.mc.m-leave{background:var(--leave);--tile:var(--leave)} .mc.m-rdo{background:var(--rdo);--tile:var(--rdo)}
-.mc.m-training{background:var(--training);--tile:var(--training)} .mc.m-sick{background:var(--sick);--tile:var(--sick)}
-.mc.m-leave,.mc.m-rdo,.mc.m-training,.mc.m-sick{color:#fff;font-weight:700}
+html[data-theme="night"] .mc.s-flyin,html[data-theme="night"] .mc.s-flyout,
 html[data-theme="night"] .mc.m-leave,html[data-theme="night"] .mc.m-rdo,
-html[data-theme="night"] .mc.m-training,html[data-theme="night"] .mc.m-sick{color:rgba(0,0,0,.78)}
+html[data-theme="night"] .mc.m-training,html[data-theme="night"] .mc.m-sick{
+  color:rgba(0,0,0,.80);text-shadow:0 1px 0 rgba(255,255,255,.16);
+}
+/* predicted days keep their stripe — the glass sheen would muddy it */
+.mc.pred.s-site,.mc.pred.s-home,.mc.pred.s-flyin,.mc.pred.s-flyout{
+  color:var(--ink);text-shadow:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,var(--tile-edge)),inset 0 -1px 0 rgba(0,0,0,.12);
+}
+.mc.pred.s-site {background:repeating-linear-gradient(135deg,var(--pred-a) 0 4px,var(--pred-b) 4px 8px)}
+.mc.pred.s-home {background:repeating-linear-gradient(135deg,var(--predh-a) 0 4px,var(--predh-b) 4px 8px)}
+.mc.pred.s-flyin{background:repeating-linear-gradient(135deg,var(--flyin) 0 4px,var(--pred-b) 4px 8px)}
+.mc.pred.s-flyout{background:repeating-linear-gradient(135deg,var(--flyout) 0 4px,var(--pred-b) 4px 8px)}
+/* an empty day is plain glass, so the plate reads through it too */
+.mc{backdrop-filter:none}
 .mc.today{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--today-line)!important;z-index:6}
 .mc.sel{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--focus)!important;z-index:9}
 .mc .fx{position:absolute;top:3px;right:4px;font-size:8.5px;font-weight:900;line-height:1;opacity:.85}
@@ -905,15 +954,18 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
 
 @media (max-width:1019px){
   .shell{grid-template-columns:minmax(0,1fr)}
-  main{padding:6px 14px calc(96px + var(--safe-b))}
+  main{padding:6px 14px calc(84px + var(--safe-b))}
 
   /* nav moves to a fixed bottom bar (must live outside the blurred header) */
   nav.tabs.top{display:none}
+  /* A floating pill leaves content showing in the gap below it and beside it, and
+     needed a gradient to hide what passed underneath — which dimmed and sliced
+     anything solid, like the range bar. A flush opaque bar hides cleanly. */
   nav.tabs.bottom{
-    display:flex;position:fixed;left:10px;right:10px;bottom:calc(10px + var(--safe-b));z-index:130;
-    justify-content:space-between;padding:6px;border-radius:22px;
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:130;
+    justify-content:space-between;padding:4px 8px calc(4px + var(--safe-b));border-radius:0;
     background:var(--chrome);-webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);
-    border:1px solid var(--glass-line);box-shadow:0 8px 30px rgba(40,34,28,.18)}
+    border:0;border-top:1px solid var(--line);box-shadow:0 -10px 26px rgba(0,0,0,.18)}
   html[data-theme="night"] nav.tabs.bottom{box-shadow:0 8px 30px rgba(0,0,0,.6)}
 
   /* rail becomes a bottom sheet */
@@ -933,14 +985,6 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
     transition:opacity 240ms}
   .sheetscrim.on{opacity:1;pointer-events:auto}
 
-  /* the bar floats, so content used to be cut in half at its top edge and show
-     through the gaps beside it — this is the band it floats on */
-  body::after{
-    content:"";position:fixed;left:0;right:0;bottom:0;z-index:125;pointer-events:none;
-    height:calc(118px + var(--safe-b));
-    background:linear-gradient(to top,var(--chrome) 0,var(--chrome) 74%,transparent 100%);
-  }
-  body.sheeting::after,html.zoomed body::after{display:none}
 
   /* the result stays in the flow on the phone too — a sheet here would cover
      the range panel underneath it, which is exactly the bug */
@@ -967,7 +1011,7 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
   .tal{padding:10px;min-height:70px}
   .tal .n{font-size:20px}
   .tal .l{font-size:10.5px}
-  .field{flex:1 1 100%}
+  .field{flex:1 1 100%;min-width:0}
 }
 @media (max-width:560px){
   #lkGrid .mc{height:44px;font-size:14px}
@@ -982,15 +1026,11 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
   header{position:static}
   .nowbar{display:none}
   .bar{min-height:52px;padding:6px 14px}
-  main{padding-bottom:calc(74px + var(--safe-b))}
+  main{padding-bottom:calc(66px + var(--safe-b))}
   /* A floating pill on a short screen leaves content visible in the gaps beside
      and above it, which reads as broken. Flush to the edge, full width, with a
      hairline: a deliberate boundary rather than something sitting on the page. */
-  nav.tabs.bottom{
-    left:0;right:0;bottom:0;border-radius:0;padding:2px 6px calc(2px + var(--safe-b));
-    border:0;border-top:1px solid var(--line-2);box-shadow:0 -8px 24px rgba(0,0,0,.30)}
-  body::after{height:calc(74px + var(--safe-b));
-    background:linear-gradient(to top,var(--chrome) 0,var(--chrome) 78%,transparent 100%)}
+  nav.tabs.bottom{padding:2px 6px calc(2px + var(--safe-b))}
   nav.tabs.bottom{padding:3px;border-radius:16px;bottom:calc(6px + var(--safe-b))}
   nav.tabs button{min-height:44px;font-size:10.5px;gap:1px;padding:4px 8px}
   nav.tabs button .ic svg{width:17px;height:17px}
@@ -1554,8 +1594,10 @@ const uid=()=>"x"+Math.random().toString(36).slice(2,10)+Date.now().toString(36)
 const monthKey=(y,m)=>{while(m<0){m+=12;y--}while(m>11){m-=12;y++}return{y,m}};
 
 /* ---------------- version ---------------- */
-const APP_VERSION="1.7";
+const APP_VERSION="1.9";
 const VERSIONS=[
+ ["1.9","Fixed the date boxes in Check a date range stretching the page sideways on iPhone, which made one card end at the screen edge while the next ran past it. The page can no longer be wider than the screen, whatever is on it."],
+ ["1.8","Every day is now a pane of coloured glass \u2014 a sheen across the top, a lit edge, and the scene showing through the empty days. The tab bar is a solid bar at the bottom edge instead of a floating pill, so nothing gets sliced or smeared behind it."],
  ["1.7","No more text showing through the bars. The header and tab bar are now solid, content fades out under them instead of being cut in half, and turning the phone sideways gives the screen back to the roster."],
  ["1.6","The shift answer now sits in the page under the calendar on the phone as well, so it can never cover Check a date range. Plus a sweep for text sitting on other text across eight screen widths."],
  ["1.5","Frosted glass throughout \u2014 the calendar sits on the scene instead of hiding it, and each day is a tinted glass tile. A sun or a moon on the day itself once you set a swing to days or nights. Settings is six sections instead of one long scroll. Fixes: the result card no longer covers the range panel, the side panel no longer slides under the header, and pinch-zoom works properly."],
