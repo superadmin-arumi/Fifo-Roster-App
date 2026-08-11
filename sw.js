@@ -1,7 +1,7 @@
 /* FIFO Roster service worker
    Network-first for the app itself so a new build shows up as soon as you're
    online, cache-first for icons, and a full offline fallback either way. */
-const CACHE = "fifo-roster-v1.9";
+const CACHE = "fifo-roster-v2.1";
 const SHELL = [
   "./index.html",
   "./manifest.webmanifest",
