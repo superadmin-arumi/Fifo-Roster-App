@@ -688,7 +688,8 @@ html[data-theme="night"] .mc.m-training,html[data-theme="night"] .mc.m-sick{colo
 /* ============================================================
    RAIL / SHEET CONTENT
    ============================================================ */
-.rday{font-size:42px;font-weight:750;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.rday{font-size:42px;font-weight:750;line-height:1.14;letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;margin-top:2px}
 .rsub{font-size:14px;color:var(--dim);margin-top:6px;min-height:21px}
 .rsep{height:1px;background:var(--line);margin:16px 0}
 .rrow{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--dim);
@@ -869,7 +870,7 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
 /* On a laptop the answer sits in the flow directly under the calendar, so it can
    never cover the range panel below it. Only the phone promotes it to a sheet. */
 .rail.resultsheet{
-  position:static;width:auto;max-width:none;margin:16px 0 0;overflow:visible;
+  position:static;width:auto;max-width:none;max-height:none;margin:16px 0 0;overflow:visible;
   opacity:0;transform:translateY(8px);pointer-events:none;visibility:visible;
   transition:opacity 240ms ease,transform 240ms cubic-bezier(.2,.85,.3,1)}
 .rail.resultsheet.open{opacity:1;transform:none;pointer-events:auto}
@@ -923,12 +924,9 @@ html[data-theme="night"] .mgbox.warn{border-color:#5A4315}
     transition:opacity 240ms}
   .sheetscrim.on{opacity:1;pointer-events:auto}
 
-  .rail.resultsheet{
-    position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;max-width:none;margin:0;z-index:150;
-    border-radius:22px 22px 0 0;padding:16px 18px calc(20px + var(--safe-b));
-    max-height:84vh;overflow-y:auto;opacity:1;pointer-events:auto;visibility:hidden;
-    transform:translateY(102%);transition:transform 260ms cubic-bezier(.2,.85,.3,1)}
-  .rail.resultsheet.open{transform:translateY(0);visibility:visible}
+  /* the result stays in the flow on the phone too — a sheet here would cover
+     the range panel underneath it, which is exactly the bug */
+  .rail.resultsheet{padding:16px 16px 18px;border-radius:var(--r-lg)}
   .yearpick button{min-height:70px;font-size:20px}
   .monthpick{gap:8px}
 
@@ -1517,8 +1515,9 @@ const uid=()=>"x"+Math.random().toString(36).slice(2,10)+Date.now().toString(36)
 const monthKey=(y,m)=>{while(m<0){m+=12;y--}while(m>11){m-=12;y++}return{y,m}};
 
 /* ---------------- version ---------------- */
-const APP_VERSION="1.5";
+const APP_VERSION="1.6";
 const VERSIONS=[
+ ["1.6","The shift answer now sits in the page under the calendar on the phone as well, so it can never cover Check a date range. Plus a sweep for text sitting on other text across eight screen widths."],
  ["1.5","Frosted glass throughout \u2014 the calendar sits on the scene instead of hiding it, and each day is a tinted glass tile. A sun or a moon on the day itself once you set a swing to days or nights. Settings is six sections instead of one long scroll. Fixes: the result card no longer covers the range panel, the side panel no longer slides under the header, and pinch-zoom works properly."],
  ["1.4","Find a shift replaces Check: tap year, then month, then the day \u2014 no typing. Every answer in plain words with a matching medallion, and one icon set drawn at one weight throughout."],
  ["1.3","Night Shift Cinema \u2014 night mode now sits on real outback imagery that shifts with your roster: site at night, the airstrip when you're travelling, first light when you're home."],
@@ -2241,30 +2240,32 @@ function renderResult(){
   $("#resRows").hidden = !rows.childNodes.length;
 }
 
-let resTimer=null, resReturn=null;
+let resTimer=null;
 const resultOpen=()=>$("#resultSheet").classList.contains("open");
 function openResult(){
   const n=$("#resultSheet");
+  const wasOpen=resultOpen();
   renderResult();
   if(resTimer){ clearTimeout(resTimer); resTimer=null; }
-  if(!resultOpen()) resReturn=document.activeElement;
   n.hidden=false;
-  n.setAttribute("role","dialog");
-  if(isPhone()){ n.setAttribute("aria-modal","true"); $("#scrim").classList.add("on"); document.body.classList.add("sheeting"); }
+  n.setAttribute("role","group");
   requestAnimationFrame(()=>requestAnimationFrame(()=>n.classList.add("open")));
-  setTimeout(()=>{ if(!n.hidden){ const f=$("#resX"); if(f)f.focus(); } },90);
+  /* bring the answer to the user rather than putting it over their page */
+  if(!wasOpen) setTimeout(()=>{
+    if(n.hidden) return;
+    const r=n.getBoundingClientRect();
+    if(r.bottom>innerHeight-8 || r.top<0)
+      n.scrollIntoView({block:"nearest",behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"});
+  },120);
 }
 function closeResult(){
   const n=$("#resultSheet");
   if(n.hidden && !n.classList.contains("open")) return;
   n.classList.remove("open");
-  $("#scrim").classList.remove("on"); document.body.classList.remove("sheeting");
-  n.removeAttribute("role"); n.removeAttribute("aria-modal");
+  n.removeAttribute("role");
   if(resTimer) clearTimeout(resTimer);
   resTimer=setTimeout(()=>{ n.hidden=true; resTimer=null; },300);
   if(lookup.step==="result") lookup.step="date";
-  if(resReturn&&document.contains(resReturn)){ try{resReturn.focus()}catch(err){} }
-  resReturn=null;
 }
 function lkToday(){
   const t=todayISO(), d=fromISO(t);
@@ -2412,8 +2413,7 @@ function closeSheet(){
 document.addEventListener("keydown",e=>{
   if(e.key!=="Tab")return;
   const box=$("#revModal").classList.contains("open") ? document.querySelector("#revModal .modal")
-          : ($("#resultSheet").classList.contains("open") ? $("#resultSheet")
-          : ($("#rail").classList.contains("open") ? $("#rail") : null));
+          : ($("#rail").classList.contains("open") ? $("#rail") : null);
   if(!box)return;
   const f=Array.from(box.querySelectorAll("button,[href],input,select,textarea,[tabindex]:not([tabindex='-1'])"))
     .filter(n=>n.offsetParent!==null);
@@ -2422,7 +2422,7 @@ document.addEventListener("keydown",e=>{
   if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
   else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
 });
-$("#scrim").onclick=()=>{ closeSheet(); if(resultOpen()){ closeResult(); renderFind(); } };
+$("#scrim").onclick=closeSheet;
 $("#sheetX").onclick=closeSheet;
 
 /* ---- mark controls ---- */
