@@ -1490,6 +1490,10 @@ body.painting .mm{user-select:none;-webkit-user-select:none}
           you're working on any given date.</p>
           <p class="hint" style="margin:0 0 18px">It's free, there's no account, and your roster never leaves your device.
           Share it with anyone who'd find it handy.</p>
+          <p class="hint" style="margin:0 0 18px"><strong style="color:var(--dim)">Works with no signal.</strong>
+          Once you've opened it on your phone, everything &mdash; the calendar, the PDF reader, the fonts and the artwork
+          &mdash; is stored on the phone itself. It opens straight from there, so a bad connection at camp never
+          leaves you waiting. Add it to your home screen and the phone keeps it indefinitely.</p>
           <div class="actions" style="margin-bottom:18px">
             <button class="pill primary" id="shareBtn">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.47" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4M12 2v14"/></svg>
@@ -1635,8 +1639,9 @@ const uid=()=>"x"+Math.random().toString(36).slice(2,10)+Date.now().toString(36)
 const monthKey=(y,m)=>{while(m<0){m+=12;y--}while(m>11){m-=12;y++}return{y,m}};
 
 /* ---------------- version ---------------- */
-const APP_VERSION="2.1";
+const APP_VERSION="2.2";
 const VERSIONS=[
+ ["2.2","Opens instantly with no signal, and just as fast on one bar \u2014 it used to wait on the network before showing anything, which on a weak connection meant a blank screen. Reading a travel confirmation works offline too."],
  ["2.1","Daylight mode is properly light now. The status card and the selected tab were solid black slabs left over from night mode \u2014 they are light surfaces with dark text, and the app icon has its own daylight cut."],
  ["2.0","Paint days: pick a brush \u2014 night shift, day shift, leave, RDO, training, sick or erase \u2014 then drag across the calendar to set a whole run at once. Tapping a day now shows the site, the full camp name and the room, with nothing cut off."],
  ["1.9","Fixed the date boxes in Check a date range stretching the page sideways on iPhone, which made one card end at the screen edge while the next ran past it. The page can no longer be wider than the screen, whatever is on it."],
@@ -3629,6 +3634,11 @@ else if(loadProblem==="blocked")
 /* installable app support — only when served over http(s); harmless as a local file */
 if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){
   window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+  /* the app opens from cache so a new build lands quietly in the background —
+     say so rather than leaving an old version running without explanation */
+  navigator.serviceWorker.addEventListener("message",ev=>{
+    if(ev.data&&ev.data.type==="update-ready") toast("A newer version is ready \u2014 close and reopen to use it","ok");
+  });
 }
 window.__fifo={version:APP_VERSION,get state(){return S},get dayMap(){return DM},get lookup(){return lookup},parsePdfLines,pdfToLines,buildICS,render,setTheme,setView,shiftKind,
   findDate(ds){const d=fromISO(ds);lookup.year=d.getFullYear();lookup.month=d.getMonth();lookup.date=ds;lookup.step="result";renderFind();openResult();},
